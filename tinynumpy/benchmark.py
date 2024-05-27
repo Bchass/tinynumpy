@@ -69,7 +69,7 @@ class B(object):
 
 def getmem():
     process = psutil.Process(os.getpid())
-    return process.get_memory_info()[0]
+    return process.memory_info()[0]
 
 M0 = getmem()
 %s
