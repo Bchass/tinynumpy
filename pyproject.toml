@@ -1,0 +1,9 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tinynumpy"
+version = "1.2.1"
+description = "A lightweight, pure Python, numpy compliant ndarray class"
+keywords = ["Science", "Research", "Engineering", "Software Development"]

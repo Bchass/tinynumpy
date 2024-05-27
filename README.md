@@ -46,7 +46,7 @@ Caveats
 Examples
 --------
 
-```python
+```python3
 
 >>> from tinynumpy import tinynumpy as tnp
 
@@ -81,4 +81,12 @@ array([[ 1.,  2.],
 
 >>> b
 array([ 100.,  2.,  3.,  4.,  5.,  6.,  7.,  8.], dtype='float64')
+```
+
+Build locally
+--------
+```
+>>> pip install build
+>>> python -m build
+>>> pip install dist/tinynumpy-1.2.1.tar.gz
 ```
