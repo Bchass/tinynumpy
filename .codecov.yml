@@ -1,0 +1,5 @@
+ignore:
+  - "tinynumpy/tests/*"  # Ignore files in the tests directory
+
+range: 70..90     # First number represents red, and second represents green
+round: down       # up, down, or nearest
