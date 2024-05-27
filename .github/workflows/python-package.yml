@@ -51,7 +51,7 @@ jobs:
 
     - name: Run tests with Python ${{ matrix.python-version }}
       run: |
-          python${{ matrix.python-version }} -m pytest --cov=tinynumpy/matrices --cov-report=xml tinynumpy/tests
+          python${{ matrix.python-version }} -m pytest --cov=tinynumpy --cov-report=xml tinynumpy/tests
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4.0.1
