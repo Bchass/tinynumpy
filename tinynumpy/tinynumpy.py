@@ -46,7 +46,7 @@ import ctypes
 
 from math import sqrt
 from copy import copy, deepcopy
-from collections import Iterable
+from collections.abc import Iterable
 import operator
 
 import tinynumpy.tinylinalg as linalg
