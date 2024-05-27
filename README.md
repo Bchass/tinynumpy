@@ -28,7 +28,7 @@ Features
 * Can get views of real numpy arrays (with shared memory).
 * Support for wrapping ctypes arrays, or provide ctypes pointer to data.
 * Pretty fast for being pure Python.
-* Works on Python 2.5+, Python 3.x, Pypy and Jython.
+* Works on Python 3.x, Pypy and Jython.
 
 Caveats
 -------
