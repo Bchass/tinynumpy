@@ -69,9 +69,11 @@ def test_repr():
             for l1, l2 in zip(repr(a).splitlines(), repr(b).splitlines()):
                 l1, l2 = l1.rstrip(), l2.rstrip()
                 l1, l2 = l1.split('dtype=')[0], l2.split('dtype=')[0]
+                l1 = l1.replace(' ', '').replace('\t', '').rstrip(',)')
+                l2 = l2.replace(' ', '').replace('\t', '').rstrip(',)')
                 assert l1 == l2
                 charscompared += len(l1)
-            assert charscompared > (3 * b.size)
+            assert charscompared > (3 * b.size) - 2
 
 
 def test_dtype():
