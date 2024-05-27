@@ -1,3 +1,5 @@
+[![Python package](https://github.com/Bchass/tinynumpy/actions/workflows/python-package.yml/badge.svg)](https://github.com/Bchass/tinynumpy/actions/workflows/python-package.yml)
+
 tinynumpy
 =========
 

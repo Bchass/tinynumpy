@@ -1,6 +1,5 @@
 # Added local files
 *.sublime-*
-.*
 setup-ex.py
 *.egg-info/*
 *.tar
@@ -28,3 +27,4 @@ __pychache__
 *.dll
 *.dylib
 
+Pipfile
