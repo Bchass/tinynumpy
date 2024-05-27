@@ -1,4 +1,5 @@
 [![Python package](https://github.com/Bchass/tinynumpy/actions/workflows/python-package.yml/badge.svg)](https://github.com/Bchass/tinynumpy/actions/workflows/python-package.yml)
+[![codecov](https://codecov.io/gh/Bchass/tinynumpy/graph/badge.svg?token=fpx7bXEqTx)](https://codecov.io/gh/Bchass/tinynumpy)
 
 tinynumpy
 =========
