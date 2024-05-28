@@ -398,6 +398,45 @@ def test_multiply():
     a = tnp.multiply(x,y)
 
     assert a == tnp.array([0, -6, -1], dtype='int64')
+    
+
+def test_argwhere():
+    """test the argwhere function for tinynumpy"""
+    a = tnp.array([1,2,3,4,5])
+    result = a.argwhere(3)
+
+    expected_result = [[2]]
+    assert result == expected_result
+
+
+def test_tolist():
+    """test the tolist function for tinynumpy"""
+
+    a = tnp.array([1,2,3])
+    result = a.tolist()
+
+    expected_result = [1,2,3]
+    assert result == expected_result
+    
+
+def test_repeat():
+    """test the repeat function for tinynumpy"""
+    a = tnp.array([1,2,3,4,5])
+    result = a.repeat(3)
+
+    expected_result = tnp.array([1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5], dtype='int64')
+    assert result == expected_result
+
+    try:
+        a = tnp.array([1,2,3,4,5])
+
+        with pytest.raises(TypeError):
+            result = a.repeat(1,1)
+
+        with pytest.raises(ValueError):
+            result = a.repeat(-1)
+    except Exception as e:
+        assert False, f"An error occured: {e}"
 
 
 if __name__ == '__main__':
