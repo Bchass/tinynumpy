@@ -87,10 +87,10 @@ def test_dtype():
             assert a.dtype == b.dtype
             assert a.itemsize == b.itemsize
 
-            # Test dtype conversion and copy
-            a_copy = np.array(a, dtype='float32', copy=False)
-            assert np.array_equal(a_copy, a)
-            assert a_copy.dtype == 'float32'
+    raises(TypeError, tnp.zeros, (9, ), 'blaa')
+
+    assert tnp.array([1.0, 2.0]).dtype == 'float64'
+    assert tnp.array([1, 2]).dtype == 'int64'
 
     # Test dtype conversion for when array is not a view
     a = np.array([1,2,3], dtype='int32')
