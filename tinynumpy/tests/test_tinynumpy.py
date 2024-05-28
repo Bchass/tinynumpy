@@ -427,16 +427,13 @@ def test_repeat():
     expected_result = tnp.array([1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5], dtype='int64')
     assert result == expected_result
 
-    try:
-        a = tnp.array([1,2,3,4,5])
+    a = tnp.array([1,2,3,4,5])
 
-        with pytest.raises(TypeError):
-            result = a.repeat(1,1)
+    with pytest.raises(TypeError):
+        result = a.repeat(1,1)
 
-        with pytest.raises(ValueError):
-            result = a.repeat(-1)
-    except Exception as e:
-        assert False, f"An error occured: {e}"
+    with pytest.raises(ValueError):
+        result = a.repeat(-1)
 
 
 if __name__ == '__main__':
