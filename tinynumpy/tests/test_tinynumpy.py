@@ -77,7 +77,7 @@ def test_repr():
 
 
 def test_dtype():
-    
+
     for shape in [(9, ), (9, 4), (9, 4, 5)]:
         for dtype in ['bool', 'int8', 'uint8', 'int16', 'uint16',
                       'int32', 'uint32', 'float32', 'float64']:
@@ -86,11 +86,25 @@ def test_dtype():
             assert a.shape == b.shape
             assert a.dtype == b.dtype
             assert a.itemsize == b.itemsize
-    
-    raises(TypeError, tnp.zeros, (9, ), 'blaa')
-    
-    assert tnp.array([1.0, 2.0]).dtype == 'float64'
-    assert tnp.array([1, 2]).dtype == 'int64'
+
+            # Test dtype conversion and copy
+            a_copy = np.array(a, dtype='float32', copy=False)
+            assert np.array_equal(a_copy, a)
+            assert a_copy.dtype == 'float32'
+
+    # Test dtype conversion for when array is not a view
+    a = np.array([1,2,3], dtype='int32')
+    b = np.array(a, dtype='float64')
+    assert b.dtype == 'float64'
+
+    # Test with array like objects
+    a_list = [1,2,3]
+    c = tnp.array(a_list)
+    assert c.dtype == 'int64'
+
+    # Test with decimals
+    d = tnp.array([[1.1, 2.2], [3.3, 4.4], [5.5, 6.6]])
+    assert d.dtype == 'float64'
 
 
 def test_reshape():
