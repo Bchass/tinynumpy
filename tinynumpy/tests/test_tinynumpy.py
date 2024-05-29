@@ -73,6 +73,157 @@ def test_repr():
             assert charscompared > (3 * b.size) - 2
 
 
+def test__float__():
+
+    # test floating point values
+    a = tnp.array([5])
+    result = float(a)
+    expected_result = 5.0
+    assert result == expected_result
+
+    with pytest.raises(TypeError):
+        b = tnp.array([5, 3])
+        result = float(b)
+
+
+def test__add__():
+
+    # test classic addition
+    a = tnp.array([1, 2, 3])
+    result = a + 1
+    expected_result = tnp.array([2, 3, 4], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([1, 2, 3])
+    b2 = tnp.array([4, 5, 6])
+    result2 = a2 + b2
+    expected_result2 = tnp.array([5, 7, 9], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    # test __radd__
+    c = tnp.array([1, 2, 3])
+    result = 1 + c
+    expected_result = tnp.array([2, 3, 4], dtype='int64')
+    assert all(result == expected_result)
+
+    a3 = tnp.array([1, 2, 3])
+    b3 = tnp.array([4, 5, 6])
+    result3 = b3 + a3
+    expected_result3 = tnp.array([5, 7, 9], dtype='int64')   
+    assert all(result3 == expected_result3)
+
+
+def test__sub__():
+
+    # test classic subtraction
+    a = tnp.array([1, 2, 3])
+    result = a - 1
+    expected_result = tnp.array([0, 1, 2], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([1, 2, 3])
+    b2 = tnp.array([4, 5, 6])
+    result2 = a2 - b2
+    expected_result2 = tnp.array([-3, -3, -3], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    # test __rsub__
+    c = tnp.array([1, 2, 3])
+    result = 1 - c
+    expected_result = tnp.array([0, 1, 2], dtype='int64')
+    assert all(result == expected_result)
+
+    a3 = tnp.array([1, 2, 3])
+    b3 = tnp.array([4, 5, 6])
+    result3 = b3 - a3
+    expected_result3 = tnp.array([3, 3, 3], dtype='int64')   
+    assert all(result3 == expected_result3)
+
+def test__sub__():
+
+    # test classic multiplication
+    a = tnp.array([1, 2, 3])
+    result = a * 1
+    expected_result = tnp.array([1, 2, 3], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([1, 2, 3])
+    b2 = tnp.array([4, 5, 6])
+    result2 = a2 * b2
+    expected_result2 = tnp.array([4, 10, 18], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    # test __rmul__
+    c = tnp.array([1, 2, 3])
+    result = 1 * c
+    expected_result = tnp.array([1, 2, 3], dtype='int64')
+    assert all(result == expected_result)
+
+    a3 = tnp.array([1, 2, 3])
+    b3 = tnp.array([4, 5, 6])
+    result3 = b3 * a3
+    expected_result3 = tnp.array([4, 10, 18], dtype='int64')   
+    assert all(result3 == expected_result3)
+
+def test__floordiv__():
+
+    a = tnp.array([1, 2, 3])
+    result = a // 1
+    expected_result = tnp.array([1, 2, 3], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([4, 6, 6])
+    b2 = tnp.array([1, 2, 3])
+    result2 = a2 // b2
+    expected_result2 = tnp.array([4, 3, 2], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    with pytest.raises(ZeroDivisionError):
+         a4 = tnp.array([1, 2, 3])
+         result = a4 // 0
+
+    with pytest.raises(ValueError):
+        a3 = tnp.array([4, 6, 6, 3])
+        b3 = tnp.array([1, 2, 3])
+        result2 = a3 // b3
+
+def test__mod__():
+
+    a = tnp.array([1, 2, 3])
+    result = a % 2
+    expected_result = tnp.array([1, 0, 1])
+    assert all(result == expected_result)
+
+    a2 = tnp.array([4, 6, 6])
+    b2 = tnp.array([1, 2, 3])
+    result2 = a2 % b2
+    expected_result2 = tnp.array([0, 0, 0], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    with pytest.raises(ValueError):
+        a3 = tnp.array([4, 6, 6, 3])
+        b3 = tnp.array([1, 2, 3])
+        result2 = a3 % b3
+
+def test__pow__():
+
+    a = tnp.array([1, 2, 3])
+    result = a ** 2
+    expected_result = tnp.array([1, 4, 9], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([4, 6, 6])
+    b2 = tnp.array([1, 2, 3])
+    result2 = a2 ** b2
+    expected_result2 = tnp.array([4, 36, 216], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    with pytest.raises(ValueError):
+        a3 = tnp.array([4, 6, 6, 3])
+        b3 = tnp.array([1, 2, 3])
+        result2 = a3 ** b3
+
+
 def test_dtype():
     
     for shape in [(9, ), (9, 4), (9, 4, 5)]:
@@ -132,34 +283,6 @@ def test_reshape():
         a2.shape = 4,
     with raises(AttributeError):
         b2.shape = 4,
-
-
-def test_transpose():
-
-    # Test 1D array
-    a = tnp.array([1, 2, 3], dtype='int32')
-    result = a.transpose()
-    assert result.shape == a.shape
-    assert (result == a).all()
-
-    # Test 2D array
-    b = tnp.array([[1, 2], [3, 4], [5, 6]], dtype='int32')
-    result = b.transpose()
-    result.shape == 2, 3
-    expected_result = tnp.array([[1, 3, 5],[2, 4, 6]])
-    assert result == expected_result
-
-    # Test 3D array
-    b = tnp.array([[1, 2], [3, 4], [5, 6], [7, 8]], dtype='int32')
-    result = b.transpose()
-    result.shape = 2, 2, 2
-    expected_result = tnp.array([[[1, 3], [5, 7]], [[2, 4], [6, 8]]], dtype='int32')
-    assert result == expected_result
-
-    # Test when ndim > 3
-    d = tnp.array([[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]], dtype='int32')
-    with pytest.raises(ValueError):
-        result = d.transpose()
 
 
 def test_from_and_to_numpy():
@@ -267,6 +390,56 @@ def test_getitem():
      
     a = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
     b = tnp.array([[1, 2, 3, 4], [5, 6, 7, 8]])
+
+
+def test_transpose():
+    """test the transpose function for tinynumpy"""
+
+    # Test 1D array
+    a = tnp.array([1, 2, 3], dtype='int32')
+    result = a.transpose()
+    assert result.shape == a.shape
+    assert (result == a).all()
+
+    # Test 2D array
+    b = tnp.array([[1, 2], [3, 4], [5, 6]], dtype='int32')
+    result = b.transpose()
+    result.shape == 2, 3
+    expected_result = tnp.array([[1, 3, 5],[2, 4, 6]])
+    assert result == expected_result
+
+    # Test 3D array
+    b = tnp.array([[1, 2], [3, 4], [5, 6], [7, 8]], dtype='int32')
+    result = b.transpose()
+    result.shape = 2, 2, 2
+    expected_result = tnp.array([[[1, 3], [5, 7]], [[2, 4], [6, 8]]], dtype='int32')
+    assert result == expected_result
+
+    # Test when ndim > 3
+    d = tnp.array([[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]], dtype='int32')
+    with pytest.raises(ValueError):
+        result = d.transpose()
+
+def test_squeeze_strides():
+    """test the squeeze_strides function for tinynumpy"""
+    a = tnp.array([[[0], [1], [2]]])
+    result = tnp.squeeze_strides(a)
+    expected_result = (tnp.array([[0],[1],[2]], dtype='int64'),)
+    assert result == expected_result
+
+
+def test__array_interface__():
+    """test __array_interface__ for tinynumpy"""
+    a = np.array([[1, 2], [3, 4], [5, 6], [7, 8]], 'float32')
+    b = tnp.ndarray(a.shape, a.dtype, strides=a.strides, buffer=a.ravel())
+
+    # __array_interface__ properties
+    a_interface = a.__array_interface__
+    b_interface = b.__array_interface__
+    assert a_interface['typestr'] == b_interface['typestr']
+    assert a_interface['shape'] == b_interface['shape']
+    assert a_interface['data'][0] == b_interface['data'][0]
+    assert a_interface['data'][1] == b_interface['data'][1]
 
 
 # Start vector cross product tests
