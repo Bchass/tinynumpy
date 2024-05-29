@@ -373,7 +373,7 @@ def test_subtract():
     x = [5, -2, 1]
     y = [0, 3, -1]
 
-    a = tnp.add(x,y)
+    a = tnp.subtract(x,y)
 
     assert a == tnp.array([5, -5, -2], dtype='int64')
 
@@ -435,6 +435,118 @@ def test_repeat():
     with pytest.raises(ValueError):
         result = a.repeat(-1)
 
+
+def test_zeros_like():
+    """test the zeros_like function for tinynumpy"""
+    a = tnp.array([[1,2,3],[4,5,6]])
+    result = tnp.zeros_like(a)
+
+    expected_result = tnp.array([[0, 0, 0],[0, 0, 0]], dtype='int64')
+    assert result == expected_result
+
+
+def test_ones_like():
+    """test the ones_like function for tinynumpy"""
+    a = tnp.array([[1,2,3],[4,5,6]])
+    result = tnp.ones_like(a)
+
+    expected_result = tnp.array([[1, 1, 1,],[1, 1, 1]], dtype='int64')
+    assert result == expected_result
+
+
+def test_empty_like():
+    """test the empty_like function for tinynumpy"""
+    a = tnp.array([[1,2,3],[4,5,6]])
+    result = tnp.empty_like(a)
+
+    expected_result = tnp.array([[0, 0, 0],[0, 0, 0]], dtype='int64')
+    assert result == expected_result
+
+
+def test_ones():
+    """test the ones function for tinynumpy"""
+    a = [1, 2, 3]
+    result = tnp.ones(a)
+
+    expected_result = tnp.array([[[ 1.,  1.,  1.],[ 1.,  1.,  1.]]])
+    assert result == expected_result
+
+    with pytest.raises(AssertionError):
+        a = tnp.array([1, 2, 3])
+        result = tnp.ones(a)
+
+def test_arange():
+    """test the arange function for tinynumpy"""
+    a = tnp.array([1])
+    result = tnp.arange(a)
+
+    expected_result = tnp.array([0.])
+    assert result == expected_result
+
+def test_clip():
+    """test the clip function for tinynumpy"""
+    a = tnp.array([1, 2, 3])
+    result = a.clip(1,2)
+
+    expected_result = tnp.array([1, 2, 3], dtype='int64')
+    assert result == expected_result
+
+    # values outside range
+    a = tnp.array([0, 5, 10])
+    result = a.clip(1, 2)
+
+    expected_result = tnp.array([1, 2, 2], dtype='int64')
+    assert result == expected_result
+
+    # conver to different data type
+    a = tnp.array([1.5, 2.5, 3.5])
+    result = a.clip(1, 2)
+
+    expected_result = tnp.array([1.5, 2, 2], dtype='float64')
+    assert result == expected_result
+
+    # out parameter
+    a = tnp.array([0, 5, 10])
+    out = tnp.empty((3,), dtype='int64')
+    result = a.clip(1, 2, out=out)
+
+    expected_result = tnp.array([1, 2, 2], dtype='int64')
+    assert result is out
+    assert result == expected_result
+
+    # negative values
+    a = tnp.array([-1, 0, 1])
+    result = a.clip(0, 2)
+
+    expected_result = tnp.array([0, 0, 1], dtype='int64')
+    assert result == expected_result
+
+    # floating point values
+    a = tnp.array([1.5, 2.5, 3.5])
+    result = a.clip(1, 2)
+
+    expected_result = tnp.array([1.5, 2, 2], dtype='float64')
+    assert result == expected_result
+
+def test_linspace():
+    """test the linspace function for tinynumpy"""
+    # default behavior
+    result = tnp.linspace(0, 1)
+    expected_result = tnp.array([ 0.,  0.02040816326530612,  0.04081632653061224,  0.061224489795918366,  0.08163265306122448,  0.1020408163265306,  0.12244897959183673,  0.14285714285714285,  0.16326530612244897,  0.18367346938775508,  0.2040816326530612,  0.22448979591836732,  0.24489795918367346,  0.26530612244897955,  0.2857142857142857,  0.3061224489795918,  0.32653061224489793,  0.3469387755102041,  0.36734693877551017,  0.3877551020408163,  0.4081632653061224,  0.42857142857142855,  0.44897959183673464,  0.4693877551020408,  0.4897959183673469,  0.5102040816326531,  0.5306122448979591,  0.5510204081632653,  0.5714285714285714,  0.5918367346938775,  0.6122448979591836,  0.6326530612244897,  0.6530612244897959,  0.673469387755102,  0.6938775510204082,  0.7142857142857142,  0.7346938775510203,  0.7551020408163265,  0.7755102040816326,  0.7959183673469387,  0.8163265306122448,  0.836734693877551,  0.8571428571428571,  0.8775510204081632,  0.8979591836734693,  0.9183673469387754,  0.9387755102040816,  0.9591836734693877,  0.9795918367346939,  0.9999999999999999])    
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+    # edge case
+    result = tnp.linspace(0, 10, num=2)
+    expected_result = tnp.array([0.0, 10.0])
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+    # return step
+    result, step = tnp.linspace(0, 1, retstep=True)
+    assert step == 0.02040816326530612
+    
+    # data types
+    result = tnp.linspace(0, 1, dtype='float64')
+    assert result.dtype == 'float64'
 
 if __name__ == '__main__':
     
