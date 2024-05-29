@@ -548,6 +548,48 @@ def test_linspace():
     result = tnp.linspace(0, 1, dtype='float64')
     assert result.dtype == 'float64'
 
+def test_astype():
+    """test the astype function for tinynumpy"""
+    for dtype in ['bool', 'int8', 'uint8', 'int16', 'uint16',
+                      'int32', 'uint32', 'int64', 'uint64', 'float32', 'float64']:
+
+        a = tnp.array([1, 2, 3])
+        result = a.astype(dtype)
+        
+        expected_result_bool = tnp.array([True, True, True], dtype='bool')
+        assert result == expected_result_bool
+
+        expected_result_int8 = tnp.array([1, 2, 3], dtype='int8')
+        assert result == expected_result_int8
+
+        expected_result_uint8 = tnp.array([1, 2, 3], dtype='uint8')
+        assert result == expected_result_uint8
+
+        expected_result_int16 = tnp.array([1, 2, 3], dtype='int16')
+        assert result == expected_result_int16
+
+        expected_result_uint16 = tnp.array([1, 2, 3], dtype='uint16')
+        assert result == expected_result_uint16
+
+        expected_result_int32 = tnp.array([1, 2, 3], dtype='int32')
+        assert result == expected_result_int32
+
+        expected_result_uint32 = tnp.array([1, 2, 3], dtype='uint32')
+        assert result == expected_result_uint32
+
+        expected_result_int64 = tnp.array([1, 2, 3], dtype='int64')
+        assert result == expected_result_int64
+
+        expected_result_uint64 = tnp.array([1, 2, 3], dtype='uint64')
+        assert result == expected_result_uint64
+
+        expected_result_float32 = tnp.array([ 1.,  2.,  3.], dtype='float32')
+        assert result == expected_result_float32
+
+        expected_result_float64 = tnp.array([ 1.,  2.,  3.], dtype='float64')
+        assert result == expected_result_float64
+
+
 if __name__ == '__main__':
     
     # Run tests with or without pytest. Running with pytest creates
