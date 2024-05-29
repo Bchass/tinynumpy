@@ -5,12 +5,9 @@
 """ Test suite for tinynumpy
 """
 
-import os
-import sys
 import ctypes
 
 import pytest
-from _pytest import runner
 from pytest import raises, skip
 
 try:

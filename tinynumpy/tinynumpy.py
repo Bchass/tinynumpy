@@ -41,7 +41,6 @@ certain features may not be supported.
 from __future__ import division
 from __future__ import absolute_import
 
-import sys
 import ctypes
 
 from math import sqrt
