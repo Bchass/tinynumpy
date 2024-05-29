@@ -99,7 +99,6 @@ def test_reshape():
         a.shape = shape
         b.shape = shape
         assert a.shape == b.shape
-        print(repr(a), repr(b), a.strides, b.strides)
         assert a.strides == b.strides
     
     a.shape = 2, 4
@@ -133,6 +132,34 @@ def test_reshape():
         a2.shape = 4,
     with raises(AttributeError):
         b2.shape = 4,
+
+
+def test_transpose():
+
+    # Test 1D array
+    a = tnp.array([1, 2, 3], dtype='int32')
+    result = a.transpose()
+    assert result.shape == a.shape
+    assert (result == a).all()
+
+    # Test 2D array
+    b = tnp.array([[1, 2], [3, 4], [5, 6]], dtype='int32')
+    result = b.transpose()
+    result.shape == 2, 3
+    expected_result = tnp.array([[1, 3, 5],[2, 4, 6]])
+    assert result == expected_result
+
+    # Test 3D array
+    b = tnp.array([[1, 2], [3, 4], [5, 6], [7, 8]], dtype='int32')
+    result = b.transpose()
+    result.shape = 2, 2, 2
+    expected_result = tnp.array([[[1, 3], [5, 7]], [[2, 4], [6, 8]]], dtype='int32')
+    assert result == expected_result
+
+    # Test when ndim > 3
+    d = tnp.array([[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]], dtype='int32')
+    with pytest.raises(ValueError):
+        result = d.transpose()
 
 
 def test_from_and_to_numpy():
