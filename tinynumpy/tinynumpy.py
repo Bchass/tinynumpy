@@ -192,12 +192,6 @@ def _key_for_index(index, shape):
     return tuple(key)
 
 
-def _zerositer(n):
-    for i in range(n):
-        yield 0
-
-
-
 ## Public functions
 
 
