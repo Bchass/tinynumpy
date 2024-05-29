@@ -1289,6 +1289,7 @@ class ndarray(object):
     def astype(self, dtype):
         out = empty(self.shape, dtype)
         out[:] = self
+        return out
     
     def view(self, dtype=None, type=None):
         if dtype is None:
