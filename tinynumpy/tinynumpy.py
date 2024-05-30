@@ -800,32 +800,17 @@ class ndarray(object):
     def __rmul__(self, other):
         return self.__mul__(other)
 
-    def __div__(self, other):
-        '''divide element-wise with array or float/scalar'''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            if other == 0 : raise ZeroDivisionError
-            out = empty(self.shape, self.dtype)
-            out[:] = [dat/other for dat in self._data] 
-            return out
-        if (isinstance(other, ndarray)):
-            if self.shape == other.shape :
-                out = empty(self.shape, self.dtype)
-                out[:] = [i/j for (i,j) in zip(self.flat, other.flat)]
-                return out
-            else :
-                raise ValueError('Array sizes do not match. '+str(self.shape)\
-                                                  +' versus '+str(other.shape))
-
     def __truediv__(self, other):
         '''divide element-wise with array or float/scalar'''
-        if (isinstance(other, int) or isinstance(other, float)) :
+        if isinstance(other, (int, float)):
             if other == 0 : raise ZeroDivisionError
-            out = empty(self.shape, self.dtype)
-            out[:] = [dat/other for dat in self._data] 
+            out = empty(self.shape, 'float64')
+            for i, dat in enumerate(self._data):
+                out[i] = dat / other
             return out
-        if (isinstance(other, ndarray)):
+        if isinstance(other, ndarray):
             if self.shape == other.shape :
-                out = empty(self.shape, self.dtype)
+                out = empty(self.shape, 'float64')
                 out[:] = [i/j for (i,j) in zip(self.flat, other.flat)]
                 return out
             else :
