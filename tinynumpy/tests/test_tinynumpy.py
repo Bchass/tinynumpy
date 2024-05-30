@@ -5,12 +5,9 @@
 """ Test suite for tinynumpy
 """
 
-import os
-import sys
 import ctypes
 
 import pytest
-from _pytest import runner
 from pytest import raises, skip
 
 try:
@@ -76,6 +73,248 @@ def test_repr():
             assert charscompared > (3 * b.size) - 2
 
 
+def test__float__():
+
+    # test floating point values
+    a = tnp.array([5])
+    result = float(a)
+    expected_result = 5.0
+    assert result == expected_result
+
+    with pytest.raises(TypeError):
+        b = tnp.array([5, 3])
+        result = float(b)
+
+
+def test__add__():
+
+    # test classic addition
+    a = tnp.array([1, 2, 3])
+    result = a + 1
+    expected_result = tnp.array([2, 3, 4], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([1, 2, 3])
+    b2 = tnp.array([4, 5, 6])
+    result2 = a2 + b2
+    expected_result2 = tnp.array([5, 7, 9], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    # test __radd__
+    c = tnp.array([1, 2, 3])
+    result = 1 + c
+    expected_result = tnp.array([2, 3, 4], dtype='int64')
+    assert all(result == expected_result)
+
+    a3 = tnp.array([1, 2, 3])
+    b3 = tnp.array([4, 5, 6])
+    result3 = b3 + a3
+    expected_result3 = tnp.array([5, 7, 9], dtype='int64')   
+    assert all(result3 == expected_result3)
+
+
+def test__sub__():
+
+    # test classic subtraction
+    a = tnp.array([1, 2, 3])
+    result = a - 1
+    expected_result = tnp.array([0, 1, 2], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([1, 2, 3])
+    b2 = tnp.array([4, 5, 6])
+    result2 = a2 - b2
+    expected_result2 = tnp.array([-3, -3, -3], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    # test __rsub__
+    c = tnp.array([1, 2, 3])
+    result = 1 - c
+    expected_result = tnp.array([0, 1, 2], dtype='int64')
+    assert all(result == expected_result)
+
+    a3 = tnp.array([1, 2, 3])
+    b3 = tnp.array([4, 5, 6])
+    result3 = b3 - a3
+    expected_result3 = tnp.array([3, 3, 3], dtype='int64')   
+    assert all(result3 == expected_result3)
+
+def test__sub__():
+
+    # test classic multiplication
+    a = tnp.array([1, 2, 3])
+    result = a * 1
+    expected_result = tnp.array([1, 2, 3], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([1, 2, 3])
+    b2 = tnp.array([4, 5, 6])
+    result2 = a2 * b2
+    expected_result2 = tnp.array([4, 10, 18], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    # test __rmul__
+    c = tnp.array([1, 2, 3])
+    result = 1 * c
+    expected_result = tnp.array([1, 2, 3], dtype='int64')
+    assert all(result == expected_result)
+
+    a3 = tnp.array([1, 2, 3])
+    b3 = tnp.array([4, 5, 6])
+    result3 = b3 * a3
+    expected_result3 = tnp.array([4, 10, 18], dtype='int64')   
+    assert all(result3 == expected_result3)
+
+def test__floordiv__():
+
+    a = tnp.array([1, 2, 3])
+    result = a // 1
+    expected_result = tnp.array([1, 2, 3], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([4, 6, 6])
+    b2 = tnp.array([1, 2, 3])
+    result2 = a2 // b2
+    expected_result2 = tnp.array([4, 3, 2], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    with pytest.raises(ZeroDivisionError):
+         a4 = tnp.array([1, 2, 3])
+         result = a4 // 0
+
+    with pytest.raises(ValueError):
+        a3 = tnp.array([4, 6, 6, 3])
+        b3 = tnp.array([1, 2, 3])
+        result2 = a3 // b3
+
+def test__mod__():
+
+    a = tnp.array([1, 2, 3])
+    result = a % 2
+    expected_result = tnp.array([1, 0, 1])
+    assert all(result == expected_result)
+
+    a2 = tnp.array([4, 6, 6])
+    b2 = tnp.array([1, 2, 3])
+    result2 = a2 % b2
+    expected_result2 = tnp.array([0, 0, 0], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    with pytest.raises(ValueError):
+        a3 = tnp.array([4, 6, 6, 3])
+        b3 = tnp.array([1, 2, 3])
+        result2 = a3 % b3
+
+def test__pow__():
+
+    a = tnp.array([1, 2, 3])
+    result = a ** 2
+    expected_result = tnp.array([1, 4, 9], dtype='int64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([4, 6, 6])
+    b2 = tnp.array([1, 2, 3])
+    result2 = a2 ** b2
+    expected_result2 = tnp.array([4, 36, 216], dtype='int64')   
+    assert all(result2 == expected_result2)
+
+    with pytest.raises(ValueError):
+        a3 = tnp.array([4, 6, 6, 3])
+        b3 = tnp.array([1, 2, 3])
+        result2 = a3 ** b3
+
+def test__iadd__():
+
+    a = tnp.array([1, 2, 3])
+    a += 5
+    expected_result = tnp.array([6, 7, 8])
+    assert all(a == expected_result)
+
+    a1 = tnp.array([3, 2, 1])
+    b1 = tnp.array([8, 9, 2])
+    a1 += b1
+    expected_result = tnp.array([11, 11, 3], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 += b2
+
+def test__isub__():
+
+    a = tnp.array([1, 2, 3])
+    a -= 5
+    expected_result = tnp.array([-4, -3, -2])
+    assert all(a == expected_result)
+
+    a1 = tnp.array([3, 2, 1])
+    b1 = tnp.array([8, 9, 2])
+    a1 -= b1
+    expected_result = tnp.array([-5, -7, -1], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 -= b2
+
+
+def test__imul__():
+
+    a = tnp.array([1, 2, 3])
+    a *= 5
+    expected_result = tnp.array([5, 10, 15])
+    assert all(a == expected_result)
+
+    a1 = tnp.array([3, 2, 1])
+    b1 = tnp.array([8, 9, 2])
+    a1 *= b1
+    expected_result = tnp.array([24, 18, 2], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 *= b2
+
+
+def test__ifloordiv__():
+
+    a = tnp.array([5, 10, 15])
+    a //= 5
+    expected_result = tnp.array([1, 2, 3])
+    assert all(a == expected_result)
+
+    a1 = tnp.array([9, 10, 2])
+    b1 = tnp.array([3, 2, 1])
+    a1 //= b1
+    expected_result = tnp.array([3, 5, 2], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 //= b2
+
+def test__ipow__():
+
+    a = tnp.array([5, 10, 15])
+    a **= 5
+    expected_result = tnp.array([3125, 100000, 759375], dtype='int64')
+    assert all(a == expected_result)
+
+    a1 = tnp.array([9, 10, 2])
+    b1 = tnp.array([3, 2, 1])
+    a1 **= b1
+    expected_result = tnp.array([729, 100, 2], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 **= b2
+
 def test_dtype():
     
     for shape in [(9, ), (9, 4), (9, 4, 5)]:
@@ -102,7 +341,6 @@ def test_reshape():
         a.shape = shape
         b.shape = shape
         assert a.shape == b.shape
-        print(repr(a), repr(b), a.strides, b.strides)
         assert a.strides == b.strides
     
     a.shape = 2, 4
@@ -245,6 +483,56 @@ def test_getitem():
     b = tnp.array([[1, 2, 3, 4], [5, 6, 7, 8]])
 
 
+def test_transpose():
+    """test the transpose function for tinynumpy"""
+
+    # Test 1D array
+    a = tnp.array([1, 2, 3], dtype='int32')
+    result = a.transpose()
+    assert result.shape == a.shape
+    assert (result == a).all()
+
+    # Test 2D array
+    b = tnp.array([[1, 2], [3, 4], [5, 6]], dtype='int32')
+    result = b.transpose()
+    result.shape == 2, 3
+    expected_result = tnp.array([[1, 3, 5],[2, 4, 6]])
+    assert result == expected_result
+
+    # Test 3D array
+    b = tnp.array([[1, 2], [3, 4], [5, 6], [7, 8]], dtype='int32')
+    result = b.transpose()
+    result.shape = 2, 2, 2
+    expected_result = tnp.array([[[1, 3], [5, 7]], [[2, 4], [6, 8]]], dtype='int32')
+    assert result == expected_result
+
+    # Test when ndim > 3
+    d = tnp.array([[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]], dtype='int32')
+    with pytest.raises(ValueError):
+        result = d.transpose()
+
+def test_squeeze_strides():
+    """test the squeeze_strides function for tinynumpy"""
+    a = tnp.array([[[0], [1], [2]]])
+    result = tnp.squeeze_strides(a)
+    expected_result = (tnp.array([[0],[1],[2]], dtype='int64'),)
+    assert result == expected_result
+
+
+def test__array_interface__():
+    """test __array_interface__ for tinynumpy"""
+    a = np.array([[1, 2], [3, 4], [5, 6], [7, 8]], 'float32')
+    b = tnp.ndarray(a.shape, a.dtype, strides=a.strides, buffer=a.ravel())
+
+    # __array_interface__ properties
+    a_interface = a.__array_interface__
+    b_interface = b.__array_interface__
+    assert a_interface['typestr'] == b_interface['typestr']
+    assert a_interface['shape'] == b_interface['shape']
+    assert a_interface['data'][0] == b_interface['data'][0]
+    assert a_interface['data'][1] == b_interface['data'][1]
+
+
 # Start vector cross product tests
 def test_cross():
     """test the cross product of two 3 dimensional vectors"""
@@ -373,7 +661,7 @@ def test_subtract():
     x = [5, -2, 1]
     y = [0, 3, -1]
 
-    a = tnp.add(x,y)
+    a = tnp.subtract(x,y)
 
     assert a == tnp.array([5, -5, -2], dtype='int64')
 
@@ -398,41 +686,193 @@ def test_multiply():
     a = tnp.multiply(x,y)
 
     assert a == tnp.array([0, -6, -1], dtype='int64')
+    
+
+def test_argwhere():
+    """test the argwhere function for tinynumpy"""
+    a = tnp.array([1,2,3,4,5])
+    result = a.argwhere(3)
+
+    expected_result = [[2]]
+    assert result == expected_result
 
 
-if __name__ == '__main__':
+def test_tolist():
+    """test the tolist function for tinynumpy"""
+
+    a = tnp.array([1,2,3])
+    result = a.tolist()
+
+    expected_result = [1,2,3]
+    assert result == expected_result
     
-    # Run tests with or without pytest. Running with pytest creates
-    # coverage report, running without allows PM debugging to fix bugs.
-    if False:
-        del sys.modules['tinynumpy']  # or coverage wont count globals
-        pytest.main('-v -x --color=yes --cov tinynumpy --cov-config .coveragerc '
-                    '--cov-report html %s' % repr(__file__))
-        # Run these lines to open coverage report
-        #import webbrowser
-        #webbrowser.open_new_tab(os.path.join('htmlcov', 'index.html'))
+
+def test_repeat():
+    """test the repeat function for tinynumpy"""
+    a = tnp.array([1,2,3,4,5])
+    result = a.repeat(3)
+
+    expected_result = tnp.array([1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5], dtype='int64')
+    assert result == expected_result
+
+    a = tnp.array([1,2,3,4,5])
+
+    with pytest.raises(TypeError):
+        result = a.repeat(1,1)
+
+    with pytest.raises(ValueError):
+        result = a.repeat(-1)
+
+
+def test_zeros_like():
+    """test the zeros_like function for tinynumpy"""
+    a = tnp.array([[1,2,3],[4,5,6]])
+    result = tnp.zeros_like(a)
+
+    expected_result = tnp.array([[0, 0, 0],[0, 0, 0]], dtype='int64')
+    assert result == expected_result
+
+
+def test_ones_like():
+    """test the ones_like function for tinynumpy"""
+    a = tnp.array([[1,2,3],[4,5,6]])
+    result = tnp.ones_like(a)
+
+    expected_result = tnp.array([[1, 1, 1,],[1, 1, 1]], dtype='int64')
+    assert result == expected_result
+
+
+def test_empty_like():
+    """test the empty_like function for tinynumpy"""
+    a = tnp.array([[1,2,3],[4,5,6]])
+    result = tnp.empty_like(a)
+
+    expected_result = tnp.array([[0, 0, 0],[0, 0, 0]], dtype='int64')
+    assert result == expected_result
+
+
+def test_ones():
+    """test the ones function for tinynumpy"""
+    a = [1, 2, 3]
+    result = tnp.ones(a)
+
+    expected_result = tnp.array([[[ 1.,  1.,  1.],[ 1.,  1.,  1.]]])
+    assert result == expected_result
+
+    with pytest.raises(AssertionError):
+        a = tnp.array([1, 2, 3])
+        result = tnp.ones(a)
+
+def test_arange():
+    """test the arange function for tinynumpy"""
+    a = tnp.array([1])
+    result = tnp.arange(a)
+
+    expected_result = tnp.array([0.])
+    assert result == expected_result
+
+def test_clip():
+    """test the clip function for tinynumpy"""
+    a = tnp.array([1, 2, 3])
+    result = a.clip(1,2)
+
+    expected_result = tnp.array([1, 2, 3], dtype='int64')
+    assert result == expected_result
+
+    # values outside range
+    a = tnp.array([0, 5, 10])
+    result = a.clip(1, 2)
+
+    expected_result = tnp.array([1, 2, 2], dtype='int64')
+    assert result == expected_result
+
+    # conver to different data type
+    a = tnp.array([1.5, 2.5, 3.5])
+    result = a.clip(1, 2)
+
+    expected_result = tnp.array([1.5, 2, 2], dtype='float64')
+    assert result == expected_result
+
+    # out parameter
+    a = tnp.array([0, 5, 10])
+    out = tnp.empty((3,), dtype='int64')
+    result = a.clip(1, 2, out=out)
+
+    expected_result = tnp.array([1, 2, 2], dtype='int64')
+    assert result is out
+    assert result == expected_result
+
+    # negative values
+    a = tnp.array([-1, 0, 1])
+    result = a.clip(0, 2)
+
+    expected_result = tnp.array([0, 0, 1], dtype='int64')
+    assert result == expected_result
+
+    # floating point values
+    a = tnp.array([1.5, 2.5, 3.5])
+    result = a.clip(1, 2)
+
+    expected_result = tnp.array([1.5, 2, 2], dtype='float64')
+    assert result == expected_result
+
+def test_linspace():
+    """test the linspace function for tinynumpy"""
+    # default behavior
+    result = tnp.linspace(0, 1)
+    expected_result = tnp.array([ 0.,  0.02040816326530612,  0.04081632653061224,  0.061224489795918366,  0.08163265306122448,  0.1020408163265306,  0.12244897959183673,  0.14285714285714285,  0.16326530612244897,  0.18367346938775508,  0.2040816326530612,  0.22448979591836732,  0.24489795918367346,  0.26530612244897955,  0.2857142857142857,  0.3061224489795918,  0.32653061224489793,  0.3469387755102041,  0.36734693877551017,  0.3877551020408163,  0.4081632653061224,  0.42857142857142855,  0.44897959183673464,  0.4693877551020408,  0.4897959183673469,  0.5102040816326531,  0.5306122448979591,  0.5510204081632653,  0.5714285714285714,  0.5918367346938775,  0.6122448979591836,  0.6326530612244897,  0.6530612244897959,  0.673469387755102,  0.6938775510204082,  0.7142857142857142,  0.7346938775510203,  0.7551020408163265,  0.7755102040816326,  0.7959183673469387,  0.8163265306122448,  0.836734693877551,  0.8571428571428571,  0.8775510204081632,  0.8979591836734693,  0.9183673469387754,  0.9387755102040816,  0.9591836734693877,  0.9795918367346939,  0.9999999999999999])    
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+    # edge case
+    result = tnp.linspace(0, 10, num=2)
+    expected_result = tnp.array([0.0, 10.0])
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+    # return step
+    result, step = tnp.linspace(0, 1, retstep=True)
+    assert step == 0.02040816326530612
     
-    else:
-        # Collect function names
-        test_functions = []
-        for line in open(__file__, 'rt').readlines():
-            if line.startswith('def'):
-                name = line[3:].split('(')[0].strip()
-                if name.startswith('test_'):
-                    test_functions.append(name)
-        # Report
-        print('Collected %i test functions.' % len(test_functions))
-        # Run
-        print('\nRunning tests ...\n')
-        for name in test_functions:
-            print('Running %s ... ' % name)
-            func = globals()[name]
-            try:
-                func()
-            except runner.Skipped as err:
-                print('SKIP:', err)
-            except Exception:
-                print('FAIL')
-                raise
-            else:
-                print('OK')
+    # data types
+    result = tnp.linspace(0, 1, dtype='float64')
+    assert result.dtype == 'float64'
+
+def test_astype():
+    """test the astype function for tinynumpy"""
+    for dtype in ['bool', 'int8', 'uint8', 'int16', 'uint16',
+                      'int32', 'uint32', 'int64', 'uint64', 'float32', 'float64']:
+
+        a = tnp.array([1, 2, 3])
+        result = a.astype(dtype)
+        
+        expected_result_bool = tnp.array([True, True, True], dtype='bool')
+        assert result == expected_result_bool
+
+        expected_result_int8 = tnp.array([1, 2, 3], dtype='int8')
+        assert result == expected_result_int8
+
+        expected_result_uint8 = tnp.array([1, 2, 3], dtype='uint8')
+        assert result == expected_result_uint8
+
+        expected_result_int16 = tnp.array([1, 2, 3], dtype='int16')
+        assert result == expected_result_int16
+
+        expected_result_uint16 = tnp.array([1, 2, 3], dtype='uint16')
+        assert result == expected_result_uint16
+
+        expected_result_int32 = tnp.array([1, 2, 3], dtype='int32')
+        assert result == expected_result_int32
+
+        expected_result_uint32 = tnp.array([1, 2, 3], dtype='uint32')
+        assert result == expected_result_uint32
+
+        expected_result_int64 = tnp.array([1, 2, 3], dtype='int64')
+        assert result == expected_result_int64
+
+        expected_result_uint64 = tnp.array([1, 2, 3], dtype='uint64')
+        assert result == expected_result_uint64
+
+        expected_result_float32 = tnp.array([ 1.,  2.,  3.], dtype='float32')
+        assert result == expected_result_float32
+
+        expected_result_float64 = tnp.array([ 1.,  2.,  3.], dtype='float64')
+        assert result == expected_result_float64

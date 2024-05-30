@@ -41,7 +41,6 @@ certain features may not be supported.
 from __future__ import division
 from __future__ import absolute_import
 
-import sys
 import ctypes
 
 from math import sqrt
@@ -51,10 +50,6 @@ import operator
 
 import tinynumpy.tinylinalg as linalg
 from tinynumpy.tinylinalg import LinAlgError as LinAlgError
-
-# Python 2/3 compat
-if sys.version_info >= (3, ):
-    xrange = range
 
 # Define version numer
 __version__ = '0.0.1dev'
@@ -174,7 +169,7 @@ def _assign_from_object(array, obj):
 
 
 def _increment_mutable_key(key, shape):
-    for axis in reversed(xrange(len(shape))):
+    for axis in reversed(range(len(shape))):
         key[axis] += 1
         if key[axis] < shape[axis]:
             return True
@@ -194,12 +189,6 @@ def _key_for_index(index, shape):
         index -= n * s
     key.append(index)
     return tuple(key)
-
-
-def _zerositer(n):
-    for i in xrange(n):
-        yield 0
-
 
 
 ## Public functions
@@ -301,7 +290,7 @@ def eye(size):
     diagonal and zeros elsewhere.
     """
     a = zeros((size,size))
-    for i in xrange(size):
+    for i in range(size):
         a[i,i] = 1
     return a
 
@@ -343,7 +332,7 @@ def arange(*args, **kwargs):
     else:
         raise TypeError('Too many input arguments')
     # Init
-    iter = xrange(start, stop, step)
+    iter = range(start, stop, step)
     a = empty((len(iter),), dtype=dtype)
     a[:] = list(iter)
     return a
@@ -365,7 +354,7 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
         step = ra / num
     # Create
     a = empty((num,), dtype)
-    a[:] = [start + i * step for i in xrange(num)]
+    a[:] = [start + i * step for i in range(num)]
     # Return
     if retstep:
         return a, step
@@ -733,7 +722,7 @@ class ndarray(object):
             axisindent = min(2, max(0, (self.ndim - axis - 1)))
             if axis < len(self.shape):
                 s += '['
-                for k_index, k in enumerate(xrange(self.shape[axis])):
+                for k_index, k in enumerate(range(self.shape[axis])):
                     if k_index > 0:
                         s += ('\n       ' + ' ' * axis)  * axisindent
                     offset_ = offset + k * self._strides[axis] // self.itemsize
@@ -935,22 +924,6 @@ class ndarray(object):
                 raise ValueError('Array sizes do not match. '+str(self.shape)\
                                                   +' versus '+str(other.shape))
 
-    def __idiv__(self, other):
-        '''Division of other array or float in place with /= operator
-        '''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            if other == 0 : raise ZeroDivisionError
-            for i in range(len(self._data)):
-                self._data[i]/=other
-            return self
-        if (isinstance(other, ndarray)):
-            if self.shape == other.shape :
-                for i in range(len(self._data)):
-                    self._data[i]/=other._data[i]
-                return self
-            else :
-                raise ValueError('Array sizes do not match. '+str(self.shape)\
-                                                  +' versus '+str(other.shape))
 
     def __itruediv__(self, other):
         '''Division of other array or float in place with /= operator
@@ -981,23 +954,6 @@ class ndarray(object):
             if self.shape == other.shape :
                 for i in range(len(self._data)):
                     self._data[i]//=other._data[i]
-                return self
-            else :
-                raise ValueError('Array sizes do not match. '+str(self.shape)\
-                                                  +' versus '+str(other.shape))
-
-    def __imod__(self, other):
-        '''mod of other array or float in place with /= operator
-        '''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            if other == 0 : raise ZeroDivisionError
-            for i in range(len(self._data)):
-                self._data[i]%=other
-            return self
-        if (isinstance(other, ndarray)):
-            if self.shape == other.shape :
-                for i in range(len(self._data)):
-                    self._data[i]%=other._data[i]
                 return self
             else :
                 raise ValueError('Array sizes do not match. '+str(self.shape)\
@@ -1276,11 +1232,11 @@ class ndarray(object):
         out = empty(shape, self.dtype)
         #
         if ndim == 2:
-            for i in xrange(self.shape[0]):
+            for i in range(self.shape[0]):
                 out[:, i] = self[i, :]
         elif ndim == 3:
-            for i in xrange(self.shape[0]):
-                for j in xrange(self.shape[1]):
+            for i in range(self.shape[0]):
+                for j in range(self.shape[1]):
                     out[:, j, i] = self[i, j, :]
         else:
             raise ValueError('Tinynumpy supports transpose up to ndim=3')
@@ -1289,6 +1245,7 @@ class ndarray(object):
     def astype(self, dtype):
         out = empty(self.shape, dtype)
         out[:] = self
+        return out
     
     def view(self, dtype=None, type=None):
         if dtype is None:
