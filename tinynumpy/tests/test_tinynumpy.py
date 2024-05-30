@@ -144,7 +144,7 @@ def test__sub__():
     expected_result3 = tnp.array([3, 3, 3], dtype='int64')   
     assert all(result3 == expected_result3)
 
-def test__sub__():
+def test__mul__():
 
     # test classic multiplication
     a = tnp.array([1, 2, 3])
@@ -169,6 +169,35 @@ def test__sub__():
     result3 = b3 * a3
     expected_result3 = tnp.array([4, 10, 18], dtype='int64')   
     assert all(result3 == expected_result3)
+
+
+def test__truediv__():
+
+    a = tnp.array([5, 10, 15])
+    result = a / 2
+    expected_result = tnp.array([ 2.5,  5.,  7.5], dtype='float64')
+    assert all(result == expected_result)
+
+    a2 = tnp.array([5, 10, 15])
+    result = a / 5.0
+    expected_result = tnp.array([ 1.,  2.,  3.], dtype='float64')
+    assert all(result == expected_result)
+
+    a3 = tnp.array([5, 10, 15])
+    b3 = tnp.array([2, 3, 4])
+    result = a3 / b3
+    expected_result = tnp.array([ 2.5,  3.3333333333333335,  3.75])
+    assert all(result == expected_result)
+
+    with pytest.raises(ValueError):
+        a4 = tnp.array([5, 10, 15, 3])
+        b4 = tnp.array([2, 3, 4])
+        result = a4 / b4
+
+    with pytest.raises(ZeroDivisionError):
+        a5 = tnp.array([5, 10, 15, 3])
+        a5 / 0
+
 
 def test__floordiv__():
 
