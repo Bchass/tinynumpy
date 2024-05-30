@@ -756,11 +756,12 @@ class ndarray(object):
     def __add__(self, other):
         '''classic addition
         '''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            out = empty(self.shape, self.dtype)
-            out[:] = [dat+other for dat in self._data] 
+        if isinstance(other, (int, float)):
+            out_dtype = 'float64' if isinstance(other, float) else self.dtype
+            out = empty(self.shape, out_dtype)
+            out[:] = [dat+other for dat in self._data]
             return out
-        if (isinstance(other, ndarray)):
+        if isinstance(other, ndarray):
             if self.shape == other.shape :
                 out = empty(self.shape, self.dtype)
                 out[:] = [i+j for (i,j) in zip(self.flat, other.flat)]
@@ -770,11 +771,12 @@ class ndarray(object):
         return self.__add__(other)
 
     def __sub__(self, other):
-        if (isinstance(other, int) or isinstance(other, float)) :
-            out = empty(self.shape, self.dtype)
+        if isinstance(other, (int, float)):
+            out_dtype = 'float64' if isinstance(other, float) else self.dtype
+            out = empty(self.shape, out_dtype)
             out[:] = [dat-other for dat in self._data] 
             return out
-        if (isinstance(other, ndarray)):
+        if isinstance(other, ndarray):
             if self.shape == other.shape :
                 out = empty(self.shape, self.dtype)
                 out[:] = [i-j for (i,j) in zip(self.flat, other.flat)]
@@ -785,11 +787,12 @@ class ndarray(object):
 
     def __mul__(self, other):
         '''multiply element-wise with array or float/scalar'''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            out = empty(self.shape, self.dtype)
+        if isinstance(other, (int, float)):
+            out_dtype = 'float64' if isinstance(other, float) else self.dtype
+            out = empty(self.shape, out_dtype)
             out[:] = [dat*other for dat in self._data] 
             return out
-        if (isinstance(other, ndarray)):
+        if isinstance(other, ndarray):
             if self.shape == other.shape :
                 out = empty(self.shape, self.dtype)
                 out[:] = [i*j for (i,j) in zip(self.flat, other.flat)]
@@ -798,32 +801,17 @@ class ndarray(object):
     def __rmul__(self, other):
         return self.__mul__(other)
 
-    def __div__(self, other):
-        '''divide element-wise with array or float/scalar'''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            if other == 0 : raise ZeroDivisionError
-            out = empty(self.shape, self.dtype)
-            out[:] = [dat/other for dat in self._data] 
-            return out
-        if (isinstance(other, ndarray)):
-            if self.shape == other.shape :
-                out = empty(self.shape, self.dtype)
-                out[:] = [i/j for (i,j) in zip(self.flat, other.flat)]
-                return out
-            else :
-                raise ValueError('Array sizes do not match. '+str(self.shape)\
-                                                  +' versus '+str(other.shape))
-
     def __truediv__(self, other):
         '''divide element-wise with array or float/scalar'''
-        if (isinstance(other, int) or isinstance(other, float)) :
+        if isinstance(other, (int, float)):
             if other == 0 : raise ZeroDivisionError
-            out = empty(self.shape, self.dtype)
-            out[:] = [dat/other for dat in self._data] 
+            out = empty(self.shape, 'float64')
+            for i, dat in enumerate(self._data):
+                out[i] = dat / other
             return out
-        if (isinstance(other, ndarray)):
+        if isinstance(other, ndarray):
             if self.shape == other.shape :
-                out = empty(self.shape, self.dtype)
+                out = empty(self.shape, 'float64')
                 out[:] = [i/j for (i,j) in zip(self.flat, other.flat)]
                 return out
             else :
@@ -832,14 +820,15 @@ class ndarray(object):
 
     def __floordiv__(self, other):
         '''divide element-wise with array or float/scalar'''
-        if (isinstance(other, int) or isinstance(other, float)) :
+        if isinstance(other, (int, float)):
+            out_dtype = 'float64' if isinstance(other, float) else self.dtype
             if other == 0 : raise ZeroDivisionError
-            out = empty(self.shape, self.dtype)
+            out = empty(self.shape, 'float64')
             out[:] = [dat//other for dat in self._data] 
             return out
         if (isinstance(other, ndarray)):
             if self.shape == other.shape :
-                out = empty(self.shape, self.dtype)
+                out = empty(self.shape, 'float64')
                 out[:] = [i//j for (i,j) in zip(self.flat, other.flat)]
                 return out
             else :
@@ -848,11 +837,12 @@ class ndarray(object):
 
     def __mod__(self, other):
         '''divide element-wise with array or float/scalar'''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            out = empty(self.shape, self.dtype)
+        if isinstance(other, (int, float)):
+            out_dtype = 'float64' if isinstance(other, float) else self.dtype
+            out = empty(self.shape, out_dtype)
             out[:] = [dat%other for dat in self._data] 
             return out
-        if (isinstance(other, ndarray)):
+        if isinstance(other, ndarray):
             if self.shape == other.shape :
                 out = empty(self.shape, self.dtype)
                 out[:] = [i%j for (i,j) in zip(self.flat, other.flat)]
@@ -863,11 +853,12 @@ class ndarray(object):
 
     def __pow__(self, other):
         '''power of two arrays element-wise (of just float power)'''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            out = empty(self.shape, self.dtype)
+        if isinstance(other, (int, float)):
+            out_dtype = 'float64' if isinstance(other, float) else self.dtype
+            out = empty(self.shape, out_dtype)
             out[:] = [dat**other for dat in self._data] 
             return out
-        if (isinstance(other, ndarray)):
+        if isinstance(other, ndarray):
             if self.shape == other.shape :
                 out = empty(self.shape, self.dtype)
                 out[:] = [i**j for (i,j) in zip(self.flat, other.flat)]
@@ -879,7 +870,7 @@ class ndarray(object):
     def __iadd__(self, other):
         '''Addition of other array or float in place with += operator
         '''
-        if (isinstance(other, int) or isinstance(other, float)) :
+        if isinstance(other, (int, float)):
             for i in range(len(self._data)):
                 self._data[i]+=other
             return self
