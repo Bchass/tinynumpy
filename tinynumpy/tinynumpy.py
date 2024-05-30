@@ -930,17 +930,12 @@ class ndarray(object):
     def __itruediv__(self, other):
         '''Division of other array or float in place with /= operator
         '''
-        if isinstance(other, (int, float)):
-            if other == 0 : 
-                raise ZeroDivisionError
-            print("Type of self._data:", type(self._data))
-            for i, val in enumerate(self._data):
-                print("Type of i:", type(i))
-                print("Type of val:", type(val))
-                print("Type of other:", type(other))
+        if (isinstance(other, int) or isinstance(other, float)) :
+            if other == 0 : raise ZeroDivisionError
+            for i in range(len(self._data)):
                 self._data[i]/=other
             return self
-        elif isinstance(other, ndarray):
+        if (isinstance(other, ndarray)):
             if self.shape == other.shape :
                 for i in range(len(self._data)):
                     self._data[i]/=other._data[i]
