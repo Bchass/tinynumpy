@@ -992,23 +992,6 @@ class ndarray(object):
                 raise ValueError('Array sizes do not match. '+str(self.shape)\
                                                   +' versus '+str(other.shape))
 
-    def __imod__(self, other):
-        '''mod of other array or float in place with /= operator
-        '''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            if other == 0 : raise ZeroDivisionError
-            for i in range(len(self._data)):
-                self._data[i]%=other
-            return self
-        if (isinstance(other, ndarray)):
-            if self.shape == other.shape :
-                for i in range(len(self._data)):
-                    self._data[i]%=other._data[i]
-                return self
-            else :
-                raise ValueError('Array sizes do not match. '+str(self.shape)\
-                                                  +' versus '+str(other.shape))
-
     def __ipow__(self, other):
         '''mod of other array or float in place with /= operator
         '''
