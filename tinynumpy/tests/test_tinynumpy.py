@@ -223,6 +223,97 @@ def test__pow__():
         b3 = tnp.array([1, 2, 3])
         result2 = a3 ** b3
 
+def test__iadd__():
+
+    a = tnp.array([1, 2, 3])
+    a += 5
+    expected_result = tnp.array([6, 7, 8])
+    assert all(a == expected_result)
+
+    a1 = tnp.array([3, 2, 1])
+    b1 = tnp.array([8, 9, 2])
+    a1 += b1
+    expected_result = tnp.array([11, 11, 3], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 += b2
+
+def test__isub__():
+
+    a = tnp.array([1, 2, 3])
+    a -= 5
+    expected_result = tnp.array([-4, -3, -2])
+    assert all(a == expected_result)
+
+    a1 = tnp.array([3, 2, 1])
+    b1 = tnp.array([8, 9, 2])
+    a1 -= b1
+    expected_result = tnp.array([-5, -7, -1], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 -= b2
+
+
+def test__imul__():
+
+    a = tnp.array([1, 2, 3])
+    a *= 5
+    expected_result = tnp.array([5, 10, 15])
+    assert all(a == expected_result)
+
+    a1 = tnp.array([3, 2, 1])
+    b1 = tnp.array([8, 9, 2])
+    a1 *= b1
+    expected_result = tnp.array([24, 18, 2], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 *= b2
+
+
+def test__ifloordiv__():
+
+    a = tnp.array([5, 10, 15])
+    a //= 5
+    expected_result = tnp.array([1, 2, 3])
+    assert all(a == expected_result)
+
+    a1 = tnp.array([9, 10, 2])
+    b1 = tnp.array([3, 2, 1])
+    a1 //= b1
+    expected_result = tnp.array([3, 5, 2], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 //= b2
+
+def test__ipow__():
+
+    a = tnp.array([5, 10, 15])
+    a **= 5
+    expected_result = tnp.array([3125, 100000, 759375], dtype='int64')
+    assert all(a == expected_result)
+
+    a1 = tnp.array([9, 10, 2])
+    b1 = tnp.array([3, 2, 1])
+    a1 **= b1
+    expected_result = tnp.array([729, 100, 2], dtype='int64')
+    assert all(a1 == expected_result)
+
+    with pytest.raises(ValueError):
+        a2 = tnp.array([3, 2, 1, 1])
+        b2 = tnp.array([8, 9, 2])
+        a2 **= b2
 
 def test_dtype():
     
