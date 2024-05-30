@@ -756,11 +756,13 @@ class ndarray(object):
     def __add__(self, other):
         '''classic addition
         '''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            out = empty(self.shape, self.dtype)
-            out[:] = [dat+other for dat in self._data] 
+        if isinstance(other, (int, float)):
+            out_dtype = 'float64' if isinstance(other, float) else self.dtype
+            out = empty(self.shape, dtype=out_dtype)
+            for i, dat in enumerate(self._data):
+                out[i] = dat + other
             return out
-        if (isinstance(other, ndarray)):
+        if isinstance(other, ndarray):
             if self.shape == other.shape :
                 out = empty(self.shape, self.dtype)
                 out[:] = [i+j for (i,j) in zip(self.flat, other.flat)]
@@ -928,12 +930,17 @@ class ndarray(object):
     def __itruediv__(self, other):
         '''Division of other array or float in place with /= operator
         '''
-        if (isinstance(other, int) or isinstance(other, float)) :
-            if other == 0 : raise ZeroDivisionError
-            for i in range(len(self._data)):
+        if isinstance(other, (int, float)):
+            if other == 0 : 
+                raise ZeroDivisionError
+            print("Type of self._data:", type(self._data))
+            for i, val in enumerate(self._data):
+                print("Type of i:", type(i))
+                print("Type of val:", type(val))
+                print("Type of other:", type(other))
                 self._data[i]/=other
             return self
-        if (isinstance(other, ndarray)):
+        elif isinstance(other, ndarray):
             if self.shape == other.shape :
                 for i in range(len(self._data)):
                     self._data[i]/=other._data[i]

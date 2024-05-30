@@ -100,6 +100,11 @@ def test__add__():
     expected_result2 = tnp.array([5, 7, 9], dtype='int64')   
     assert all(result2 == expected_result2)
 
+    a4 = tnp.array([5,10,15])
+    result = a4 + 1.5
+    expected_result = tnp.array([6.5, 11.5, 16.5], dtype='float64')
+    assert all(result == expected_result)
+
     # test __radd__
     c = tnp.array([1, 2, 3])
     result = 1 + c
