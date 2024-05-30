@@ -126,6 +126,11 @@ def test__sub__():
     expected_result = tnp.array([0, 1, 2], dtype='int64')
     assert all(result == expected_result)
 
+    b = tnp.array([5, 10, 15])
+    result = b - 1.0
+    expected_result = tnp.array([ 4.,  9.,  14.])
+    assert all(result == expected_result)
+
     a2 = tnp.array([1, 2, 3])
     b2 = tnp.array([4, 5, 6])
     result2 = a2 - b2
@@ -151,6 +156,12 @@ def test__mul__():
     result = a * 1
     expected_result = tnp.array([1, 2, 3], dtype='int64')
     assert all(result == expected_result)
+
+    b = tnp.array([5, 10, 15])
+    result = b * 1.0
+    expected_result = tnp.array([ 5.,  10.,  15.])
+    assert all(result == expected_result)
+
 
     a2 = tnp.array([1, 2, 3])
     b2 = tnp.array([4, 5, 6])
@@ -206,6 +217,11 @@ def test__floordiv__():
     expected_result = tnp.array([1, 2, 3], dtype='int64')
     assert all(result == expected_result)
 
+    b = tnp.array([5, 10, 15])
+    result = a // 1.0
+    expected_result = tnp.array([ 1.,  2.,  3.])
+    assert all(result == expected_result)
+
     a2 = tnp.array([4, 6, 6])
     b2 = tnp.array([1, 2, 3])
     result2 = a2 // b2
@@ -228,6 +244,11 @@ def test__mod__():
     expected_result = tnp.array([1, 0, 1])
     assert all(result == expected_result)
 
+    b = tnp.array([5, 10, 15])
+    result = b % 2.0
+    expected_result = tnp.array([ 1.,  0.,  1.])
+    assert all(result == expected_result)
+
     a2 = tnp.array([4, 6, 6])
     b2 = tnp.array([1, 2, 3])
     result2 = a2 % b2
@@ -244,6 +265,11 @@ def test__pow__():
     a = tnp.array([1, 2, 3])
     result = a ** 2
     expected_result = tnp.array([1, 4, 9], dtype='int64')
+    assert all(result == expected_result)
+    
+    b = tnp.array([5, 10, 15])
+    result = b ** 2.0
+    expected_result = tnp.array([ 25.,  100.,  225.])
     assert all(result == expected_result)
 
     a2 = tnp.array([4, 6, 6])
