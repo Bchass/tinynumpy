@@ -5,8 +5,6 @@
 [If there's an existing issue related to this pull request, please reference it here.]
 
 ## Checklist
-- [ ] I have read the CONTRIBUTING document.
-- [ ] My code follows the code style of this project.
 - [ ] My changes pass all existing automated tests.
 - [ ] I have added tests to cover my changes.
 - [ ] All new and existing tests passed.
