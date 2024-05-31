@@ -133,39 +133,27 @@ def squeeze_strides(s):
 
 
 def _shape_from_object(obj):
-    
-    shape = []
-    # todo: make more efficient, use len() etc
-    def _shape_from_object_r(index, element, axis):
-        try:
+    def _shape_from_object_r(element, axis):
+        if isinstance(element, list):
             for i, e in enumerate(element):
-                _shape_from_object_r(i, e, axis+1)
+                _shape_from_object_r(e, axis + 1)
             while len(shape) <= axis:
                 shape.append(0)
-            l = i + 1
-            s = shape[axis]
-            if l > s:
-                shape[axis] = l
-        except TypeError:
-            pass
+            shape[axis] = max(shape[axis], len(element))
 
-    _shape_from_object_r(0, obj, 0)
+    shape = []
+    _shape_from_object_r(obj, 0)
     return tuple(shape)
 
 
 def _assign_from_object(array, obj):
-    key = []
-    # todo: make more efficient, especially the try-except
-    def _assign_from_object_r(element):
-        try:
+    def _assign_from_object_r(element, indicies):
+        if isinstance(element, list):
             for i, e in enumerate(element):
-                key.append(i)
-                _assign_from_object_r(e)
-                key.pop()
-        except TypeError:
-            array[tuple(key)] = element
-
-    _assign_from_object_r(obj)
+                _assign_from_object_r(e, indicies + [i])
+        else:
+            array[tuple(indicies)] = element
+    _assign_from_object_r(obj, [])
 
 
 def _increment_mutable_key(key, shape):
@@ -442,7 +430,6 @@ def reshape(X,shape):
     assert isinstance(shape, tuple) or isinstance(shape, list)
     return X.reshape(shape)
 
-## The class
 
 class ndarray(object):
     """ ndarray(shape, dtype='float64', buffer=None, offset=0,
@@ -1166,7 +1153,6 @@ class ndarray(object):
                     OWNDATA=(self._base is None),
                     WRITEABLE=True, # todo: fix this
                     ALIGNED=c_cont,  # todo: different from contiguous?
-                    UPDATEIFCOPY=False,  # We don't support this feature
                )
     
     ## Methods - managemenet
@@ -1390,8 +1376,6 @@ class ndarray(object):
             jump = len(comp)//shp[-1]
             n_comp +=1
         return comp
-
-
 
 
 class nditer:
