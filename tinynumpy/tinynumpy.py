@@ -1153,7 +1153,6 @@ class ndarray(object):
                     OWNDATA=(self._base is None),
                     WRITEABLE=True, # todo: fix this
                     ALIGNED=c_cont,  # todo: different from contiguous?
-                    UPDATEIFCOPY=False,  # We don't support this feature
                )
     
     ## Methods - managemenet
