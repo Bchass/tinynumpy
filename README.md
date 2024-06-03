@@ -11,12 +11,6 @@ do not make much use of array processing, to make numpy an optional
 dependency. This might make such libaries better available, also on
 platforms like Pypy and Jython.
 
-Links
------
-
-* Github: https://github.com/wadetb/tinynumpy
-* Docs: http://tinynumpy.readthedocs.org/en/latest/
-
 
 Features
 --------
@@ -85,6 +79,10 @@ array([ 100.,  2.,  3.,  4.,  5.,  6.,  7.,  8.], dtype='float64')
 
 Build locally
 --------
+
+> [!NOTE]  
+> Aiming to relaunch on PyPi once [v1.2.1](https://github.com/Bchass/tinynumpy/milestone/1) is completed.
+
 ```
 >>> pip install build
 >>> python -m build
