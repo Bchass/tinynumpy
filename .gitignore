@@ -28,3 +28,5 @@ __pychache__
 *.dylib
 
 Pipfile
+.DS_Store
+.swp
