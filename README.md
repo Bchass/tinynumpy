@@ -11,12 +11,6 @@ do not make much use of array processing, to make numpy an optional
 dependency. This might make such libaries better available, also on
 platforms like Pypy and Jython.
 
-Links
------
-
-* Github: https://github.com/wadetb/tinynumpy
-* Docs: http://tinynumpy.readthedocs.org/en/latest/
-
 
 Features
 --------
