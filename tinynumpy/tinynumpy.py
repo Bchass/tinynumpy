@@ -1164,7 +1164,10 @@ class ndarray(object):
     @flags.setter
     def flags(self, value):
         if isinstance(value, dict):
-            self._flags_bool = value['WRITEABLE']
+            if 'WRITABLE' in value:
+                self._flags_bool = value['WRITEABLE']
+            if 'WRITEBACKIFCOPY' in value and value['WRITEBACKIFCOPY'] == True:
+                raise ValueError("can't set WRITEBACKIFCOPY to True")
     
     ## Methods - managemenet
     
