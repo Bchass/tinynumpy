@@ -79,6 +79,10 @@ array([ 100.,  2.,  3.,  4.,  5.,  6.,  7.,  8.], dtype='float64')
 
 Build locally
 --------
+
+> [!NOTE]  
+> Aiming to relaunch on PyPi once [v1.2.1](https://github.com/Bchass/tinynumpy/milestone/1) is completed.
+
 ```
 >>> pip install build
 >>> python -m build
