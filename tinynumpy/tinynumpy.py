@@ -558,6 +558,8 @@ class ndarray(object):
             self._offset = 0
             assert strides is None
             self._strides = _strides_for_shape(self._shape, self.itemsize)
+            # Set flag to true by default
+            self._flags_bool = True
         
         else:
             # Existing array
@@ -565,6 +567,8 @@ class ndarray(object):
                 buffer = buffer.base
             # Keep a reference to avoid memory cleanup
             self._base = buffer
+            # WRITEABLE should be True when creating a view
+            self._flags_bool = True
             # for ndarray we use the data property
             if isinstance(buffer, ndarray):
                 buffer = buffer.data
@@ -590,8 +594,6 @@ class ndarray(object):
             self._data = BufferClass.from_address(ctypes.addressof(buffer))
         else:
             self._data = BufferClass.from_buffer(buffer)
-
-        self._flags_bool = True
     
     @property
     def __array_interface__(self):
@@ -1154,6 +1156,7 @@ class ndarray(object):
     @property
     def flags(self):
         c_cont = _get_step(self) == 1
+        writeable = (self._base is None) and self._flags_bool
         return {'C_CONTIGUOUS': c_cont,
                 'F_CONTIGUOUS': (c_cont and self.ndim < 2),
                 'OWNDATA': (self._base is None),
