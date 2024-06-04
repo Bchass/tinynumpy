@@ -553,6 +553,10 @@ def test_setitem_writeable():
         a = tnp.array([1, 2, 3])
         a.flags = {'WRITEABLE': False}
         a[0] = 4
+    
+    with pytest.raises(ValueError):
+        a = tnp.array([1, 2, 3])
+        a.flags = {'WRITEBACKIFCOPY': True}
 
 
 def test_transpose():
