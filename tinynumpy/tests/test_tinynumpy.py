@@ -549,7 +549,7 @@ def test_setitem_writeable():
     expected_result = tnp.array([4, 2, 3, 4, 5], dtype='int64')
     assert all(a == expected_result)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError):
         a = tnp.array([1, 2, 3])
         a.flags = {'WRITEABLE': False}
         a[0] = 4

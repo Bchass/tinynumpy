@@ -645,7 +645,7 @@ class ndarray(object):
 
         # Check if flag is True or False
         if not self._flags_bool:
-            raise ValueError("Array is not writeable")
+            raise RuntimeError ("Array is not writeable")
         else:
             # Is this easy?
             if not shape:
