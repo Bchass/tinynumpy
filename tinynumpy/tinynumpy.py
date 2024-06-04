@@ -1156,7 +1156,6 @@ class ndarray(object):
     @property
     def flags(self):
         c_cont = _get_step(self) == 1
-        writeable = (self._base is None) and self._flags_bool
         return {'C_CONTIGUOUS': c_cont,
                 'F_CONTIGUOUS': (c_cont and self.ndim < 2),
                 'OWNDATA': (self._base is None),
