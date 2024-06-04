@@ -542,6 +542,22 @@ def test_getitem():
     a = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
     b = tnp.array([[1, 2, 3, 4], [5, 6, 7, 8]])
 
+def test_setitem_writeable():
+
+    a = tnp.array([1, 2, 3])
+    a[0] = 4
+    expected_result = tnp.array([4, 2, 3, 4, 5], dtype='int64')
+    assert all(a == expected_result)
+
+    with pytest.raises(RuntimeError):
+        a = tnp.array([1, 2, 3])
+        a.flags = {'WRITEABLE': False}
+        a[0] = 4
+    
+    with pytest.raises(ValueError):
+        a = tnp.array([1, 2, 3])
+        a.flags = {'WRITEBACKIFCOPY': True}
+
 
 def test_transpose():
     """test the transpose function for tinynumpy"""

@@ -526,10 +526,11 @@ class ndarray(object):
     """
     
     __slots__ = ['_dtype', '_shape', '_strides', '_itemsize', 
-                 '_offset', '_base', '_data']
+                 '_offset', '_base', '_data', '_flags_bool']
     
     def __init__(self, shape, dtype='float64', buffer=None, offset=0,
                  strides=None, order=None):
+
         # Check order
         if order is not None:
             raise RuntimeError('ndarray order parameter is not supported')
@@ -557,6 +558,8 @@ class ndarray(object):
             self._offset = 0
             assert strides is None
             self._strides = _strides_for_shape(self._shape, self.itemsize)
+            # Set flag to true by default
+            self._flags_bool = True
         
         else:
             # Existing array
@@ -564,6 +567,8 @@ class ndarray(object):
                 buffer = buffer.base
             # Keep a reference to avoid memory cleanup
             self._base = buffer
+            # WRITEABLE should be True when creating a view
+            self._flags_bool = True
             # for ndarray we use the data property
             if isinstance(buffer, ndarray):
                 buffer = buffer.data
@@ -639,11 +644,15 @@ class ndarray(object):
         
         # Get info for view
         offset, shape, strides = self._index_helper(key)
-        
-        # Is this easy?
-        if not shape:
-            self._data[offset] = value
-            return
+
+        # Check if flag is True or False
+        if not self._flags_bool:
+            raise RuntimeError ("Array is not writeable")
+        else:
+            # Is this easy?
+            if not shape:
+                self._data[offset] = value
+                return
 
         # Create view to set data to
         view = ndarray(shape, self.dtype,
@@ -1146,14 +1155,21 @@ class ndarray(object):
     
     @property
     def flags(self):
-        
         c_cont = _get_step(self) == 1
-        return dict(C_CONTIGUOUS=c_cont,
-                    F_CONTIGUOUS=(c_cont and self.ndim < 2),
-                    OWNDATA=(self._base is None),
-                    WRITEABLE=True, # todo: fix this
-                    ALIGNED=c_cont,  # todo: different from contiguous?
-               )
+        return {'C_CONTIGUOUS': c_cont,
+                'F_CONTIGUOUS': (c_cont and self.ndim < 2),
+                'OWNDATA': (self._base is None),
+                'WRITEABLE': self._flags_bool,
+                'ALIGNED': c_cont,  
+                'WRITEBACKIFCOPY': False}
+
+    @flags.setter
+    def flags(self, value):
+        if isinstance(value, dict):
+            if 'WRITEABLE' in value:
+                self._flags_bool = value['WRITEABLE']
+            if 'WRITEBACKIFCOPY' in value and value['WRITEBACKIFCOPY'] == True:
+                raise ValueError("can't set WRITEBACKIFCOPY to True")
     
     ## Methods - managemenet
     
