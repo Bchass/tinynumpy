@@ -557,6 +557,16 @@ def test_setitem_writeable():
     with pytest.raises(ValueError):
         a = tnp.array([1, 2, 3])
         a.flags = {'WRITEBACKIFCOPY': True}
+        
+
+def test_asfortranarray():
+    """test the asfortranarray function for tinynumpy"""
+
+    a = tnp.array([[1, 2, 3], [4, 5, 6]])
+    if a.ndim >= 1:
+        b = tnp.asfortranarray(a)
+        result = b.flags['F_CONTIGUOUS']
+    assert result == True
 
 
 def test_transpose():
