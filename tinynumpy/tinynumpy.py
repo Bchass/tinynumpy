@@ -433,7 +433,11 @@ def reshape(X,shape):
 
 def asfortranarray(self):
     """
-    Return an array ndim >=1 to F_CONTIGUOUS
+    Convert the array to F-contiguous order.
+    
+    Returns:
+        ndarray: A new array in F-contiguous order.
+
     """
 
     # calculate new strides
