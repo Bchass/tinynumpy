@@ -431,6 +431,23 @@ def reshape(X,shape):
     return X.reshape(shape)
 
 
+def asfortranarray(self):
+    """
+    Return an array ndim >=1 to F_CONTIGUOUS
+    """
+
+    # calculate new strides
+    strides_fortran = _strides_for_shape(self._shape, self.itemsize)
+
+    # create new object with the same data from buffer
+    out =  ndarray(self._shape, dtype=self._dtype, buffer=self._data,
+                            offset=self._offset, strides=strides_fortran)
+    if self.ndim >= 1:
+        out.flags = {'F_CONTIGUOUS': True} 
+
+    return out
+
+
 class ndarray(object):
     """ ndarray(shape, dtype='float64', buffer=None, offset=0,
                 strides=None, order=None)
@@ -526,7 +543,7 @@ class ndarray(object):
     """
     
     __slots__ = ['_dtype', '_shape', '_strides', '_itemsize', 
-                 '_offset', '_base', '_data', '_flags_bool']
+                 '_offset', '_base', '_data', '_flags_bool', '_asfortranarray']
     
     def __init__(self, shape, dtype='float64', buffer=None, offset=0,
                  strides=None, order=None):
@@ -560,6 +577,8 @@ class ndarray(object):
             self._strides = _strides_for_shape(self._shape, self.itemsize)
             # Set flag to true by default
             self._flags_bool = True
+            # Check to keep track of asfortranarray() and @property flag
+            self._asfortranarray = False
         
         else:
             # Existing array
@@ -569,6 +588,8 @@ class ndarray(object):
             self._base = buffer
             # WRITEABLE should be True when creating a view
             self._flags_bool = True
+            # Check to keep track of asfortranarray() and @property flag
+            self._asfortranarray = False
             # for ndarray we use the data property
             if isinstance(buffer, ndarray):
                 buffer = buffer.data
@@ -1157,7 +1178,7 @@ class ndarray(object):
     def flags(self):
         c_cont = _get_step(self) == 1
         return {'C_CONTIGUOUS': c_cont,
-                'F_CONTIGUOUS': (c_cont and self.ndim < 2),
+                'F_CONTIGUOUS': (c_cont and self.ndim < 2 or self._asfortranarray),
                 'OWNDATA': (self._base is None),
                 'WRITEABLE': self._flags_bool,
                 'ALIGNED': c_cont,  
@@ -1168,6 +1189,8 @@ class ndarray(object):
         if isinstance(value, dict):
             if 'WRITEABLE' in value:
                 self._flags_bool = value['WRITEABLE']
+            if 'F_CONTIGUOUS' in value:
+                self._asfortranarray = value['F_CONTIGUOUS']
             if 'WRITEBACKIFCOPY' in value and value['WRITEBACKIFCOPY'] == True:
                 raise ValueError("can't set WRITEBACKIFCOPY to True")
     
