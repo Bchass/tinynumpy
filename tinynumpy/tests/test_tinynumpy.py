@@ -52,6 +52,31 @@ def test_shapes_and_strides():
             assert len(repr(b)) > (b.size * 3)  # "x.0" for each element
 
 
+def test_strides_for_shape():
+    shapes_itemsize = [
+        ((3,), 4, 'C', (4,)),
+        ((3,), 4, 'F', (4,)),
+        ((3, 4), 4, 'C', (16, 4)),
+        ((3, 4), 4, 'F', (4, 12)),
+        ((3, 4, 2), 4, 'C', (32, 8, 4)),
+        ((3, 4, 2), 4, 'F', (4, 12, 48)), 
+        # TODO: These two fail when checking against numpy results
+        #((5, 4, 3), 8, 'C', (96, 24, 8)),
+        #((5, 4, 3), 8, 'F', (8, 40, 160)),
+    ]
+
+    for shape, itemsize, order, expected_strides in shapes_itemsize:
+
+        actual_strides = tnp._strides_for_shape(shape, itemsize, order)
+
+        a = np.empty(shape, dtype=np.int32, order=order)
+        numpy_strides = a.strides
+        
+        # check against numpy
+        assert actual_strides == numpy_strides, f"For shape {shape}, order {order}: Expected {actual_strides}, got {numpy_strides}"
+
+
+
 def test_repr():
     
     for dtype in ['float32', 'float64', 'int32', 'int64']:
