@@ -52,16 +52,17 @@ def test_shapes_and_strides():
             assert len(repr(b)) > (b.size * 3)  # "x.0" for each element
 
 def test_strides_for_shape():
+
+    # TODO: The ones that are failing with GH Actions is mainly Fortran
     shapes_itemsize = [
         ((3,), 4, 'C', (4,)),
         ((3,), 4, 'F', (4,)),
         ((3, 4), 4, 'C', (16, 4)),
-        #((3, 4), 4, 'F', (4, 12)),
+        ((3, 4), 4, 'F', (4, 12)),
         ((3, 4, 2), 4, 'C', (32, 8, 4)),
-        #((3, 4, 2), 4, 'F', (4, 12, 48)), 
-        # TODO: These two fail when checking against numpy results
+        ((3, 4, 2), 4, 'F', (4, 12, 48)), 
         ((5, 4, 3), 8, 'C', (96, 24, 8)),
-        #((5, 4, 3), 8, 'F', (8, 40, 160)),
+        ((5, 4, 3), 8, 'F', (8, 40, 160)),
     ]
 
     for shape, itemsize, order, expected_strides in shapes_itemsize:
