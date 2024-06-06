@@ -69,8 +69,11 @@ def test_strides_for_shape():
         actual_strides = tnp._strides_for_shape(shape, itemsize, order)
         print(f"\nFor tnp order {order}",actual_strides)
 
-        a = np.empty(shape, dtype=np.int32, order=order)
+        dtype = f'int{itemsize * 8}' 
+        print(dtype)
+        a = np.empty(shape, dtype=dtype, order=order)
         numpy_strides = a.strides
+        print(a.dtype)
         print(f"For numpy order {order}", numpy_strides)
         
         # check against numpy
