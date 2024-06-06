@@ -111,13 +111,21 @@ def _get_step(view):
         return 0  # not contiguous
 
 
-def _strides_for_shape(shape, itemsize):
-    strides = []
-    stride_product = 1
-    for s in reversed(shape):
-        strides.append(stride_product)
-        stride_product *= s
-    return tuple([i * itemsize for i in reversed(strides)])
+def _strides_for_shape(shape, itemsize, order='C'):
+    if order == 'F':
+        strides = []
+        stride_product = 1
+        for s in shape:
+            strides.append(stride_product)
+            stride_product *= s
+        return tuple([i * itemsize for i in (strides)])
+    elif order == 'C':
+        strides = []
+        stride_product = 1
+        for s in reversed(shape):
+            strides.append(stride_product)
+            stride_product *= s
+        return tuple([i * itemsize for i in reversed(strides)])
 
 
 def _size_for_shape(shape):
@@ -233,7 +241,7 @@ def array(obj, dtype=None, copy=True, order=None):
             if isinstance(el, int):
                 dtype = 'int64'
         # Create array
-        a = ndarray(shape, dtype, order=None)
+        a = ndarray(shape, dtype, order=order)
         _assign_from_object(a, obj)
         return a
 
@@ -483,7 +491,7 @@ class ndarray(object):
         Offset of array data in buffer.
     strides : tuple of ints, optional
         Strides of data in memory.
-    order : {'C', 'F'}, optional  NOT SUPPORTED
+    order : {'C', 'F'}, optional
         Row-major or column-major order.
 
     Attributes
@@ -553,8 +561,15 @@ class ndarray(object):
                  strides=None, order=None):
 
         # Check order
-        if order is not None:
-            raise RuntimeError('ndarray order parameter is not supported')
+        if order == 'C':
+            dtype = _convert_dtype(dtype) if (dtype is not None) else 'float64'
+            self._itemsize = int(dtype[-1])
+            strides = _strides_for_shape(shape, self._itemsize, order='C')
+        elif order == 'F':
+            dtype = _convert_dtype(dtype) if (dtype is not None) else 'float64'
+            self._itemsize = int(dtype[-1])
+            strides = _strides_for_shape(shape, self._itemsize, order='F')
+
         # Check and set shape
         try : 
             assert isinstance(shape, Iterable)
@@ -577,7 +592,6 @@ class ndarray(object):
             # Check and set offset and strides
             assert offset == 0
             self._offset = 0
-            assert strides is None
             self._strides = _strides_for_shape(self._shape, self.itemsize)
             # Set flag to true by default
             self._flags_bool = True
