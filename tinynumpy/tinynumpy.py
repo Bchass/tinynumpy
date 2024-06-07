@@ -118,7 +118,7 @@ def _strides_for_shape(shape, itemsize, order='C'):
         for s in shape:
             strides.append(stride_product)
             stride_product *= s
-        return tuple([i * itemsize for i in (strides)])
+        return tuple([i * itemsize for i in strides])
     elif order == 'C':
         strides = []
         stride_product = 1
@@ -599,6 +599,8 @@ class ndarray(object):
                     self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': False}
                 else:
                    self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
+            elif order is not None:
+                raise ValueError("Invalid order specified. Please specify 'C' for C-order or 'F' for Fortran-order.")
         else:
             # Existing array
             if isinstance(buffer, ndarray) and buffer.base is not None:
