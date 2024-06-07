@@ -454,8 +454,9 @@ def asfortranarray(self):
     # create new object with the same data from buffer
     out =  ndarray(self._shape, dtype=self._dtype, buffer=self._data,
                             offset=self._offset, strides=strides_fortran)
+
     if self.ndim >= 1:
-        out.flags = {'F_CONTIGUOUS': True} 
+        out.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': False}
 
     return out
 
@@ -562,11 +563,11 @@ class ndarray(object):
 
         # Check order
         if order == 'C':
-            dtype = _convert_dtype(dtype) if (dtype is not None) else 'float64'
+            dtype = _convert_dtype(dtype) #if (dtype is not None) else 'float64'
             self._itemsize = int(dtype[-1])
             strides = _strides_for_shape(shape, self._itemsize, order='C')
         elif order == 'F':
-            dtype = _convert_dtype(dtype) if (dtype is not None) else 'float64'
+            dtype = _convert_dtype(dtype) #if (dtype is not None) else 'float64'
             self._itemsize = int(dtype[-1])
             strides = _strides_for_shape(shape, self._itemsize, order='F')
 
@@ -1195,7 +1196,7 @@ class ndarray(object):
     @property
     def flags(self):
         c_cont = _get_step(self) == 1
-        return {'C_CONTIGUOUS': c_cont,
+        return {'C_CONTIGUOUS': (c_cont and not self._asfortranarray),
                 'F_CONTIGUOUS': (c_cont and self.ndim < 2 or self._asfortranarray),
                 'OWNDATA': (self._base is None),
                 'WRITEABLE': self._flags_bool,
@@ -1209,6 +1210,8 @@ class ndarray(object):
                 self._flags_bool = value['WRITEABLE']
             if 'F_CONTIGUOUS' in value:
                 self._asfortranarray = value['F_CONTIGUOUS']
+            if 'C_CONTIGUOUS' in value:
+                self._asfortranarray = not value['C_CONTIGUOUS']
             if 'WRITEBACKIFCOPY' in value and value['WRITEBACKIFCOPY'] == True:
                 raise ValueError("can't set WRITEBACKIFCOPY to True")
     
