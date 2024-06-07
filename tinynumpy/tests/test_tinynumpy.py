@@ -51,6 +51,9 @@ def test_shapes_and_strides():
         else:
             assert len(repr(b)) > (b.size * 3)  # "x.0" for each element
 
+        assert b.flags['F_CONTIGUOUS'] == True
+        assert b.flags['C_CONTIGUOUS'] == False
+
 def test_strides_for_shape():
 
     # TODO: The ones that are failing with GH Actions is mainly Fortran
@@ -68,14 +71,14 @@ def test_strides_for_shape():
     for shape, itemsize, order, expected_strides in shapes_itemsize:
 
         actual_strides = tnp._strides_for_shape(shape, itemsize, order)
-        print(f"\nFor tnp order {order}",actual_strides)
+        #print(f"\nFor tnp order {order}",actual_strides)
 
         dtype = f'int{itemsize * 8}' 
-        print(dtype)
+        #print(dtype)
         a = np.empty(shape, dtype=dtype, order=order)
         numpy_strides = a.strides
-        print(a.dtype)
-        print(f"For numpy order {order}", numpy_strides)
+        #print(a.dtype)
+        #print(f"For numpy order {order}", numpy_strides)
         
         # check against numpy
         assert actual_strides == numpy_strides, f"For shape {shape}, order {order}: Expected {actual_strides}, got {numpy_strides}"
