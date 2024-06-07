@@ -1,5 +1,5 @@
 ignore:
-  - "tinynumpy/tests/*"  # Ignore files in the tests directory
+  - "tinynumpy/tinynumpy/tests/*"  # Ignore files in the tests directory
   - "tinynumpy/benchmark.py"
 
 range: 70..90     # First number represents red, and second represents green
