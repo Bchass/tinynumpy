@@ -465,6 +465,11 @@ def test_reshape():
     assert b2.base is b
     assert a2[:].base is a
     assert b2[:].base is b
+
+    # Test reshape
+    reshaped_a = a.reshape((4, 2))
+    reshaped_b = b.reshape((4, 2))
+    assert np.array_equal(reshaped_a, reshaped_b)
     
     # Fail
     with raises(ValueError):  # Invalid shape
