@@ -595,8 +595,20 @@ def test_asfortranarray():
     a = tnp.array([[1, 2, 3], [4, 5, 6]])
     if a.ndim >= 1:
         b = tnp.asfortranarray(a)
-        result = b.flags['F_CONTIGUOUS']
-    assert result == True
+        result_F = b.flags['F_CONTIGUOUS']
+        result_C = b.flags['C_CONTIGUOUS']
+    assert result_F == True
+    assert result_C == False
+
+    assert b.flags['OWNDATA'] == False
+    assert b.flags['WRITEABLE'] == True
+    assert b.flags['ALIGNED'] == True
+    assert b.flags['WRITEBACKIFCOPY'] == False
+
+    expected_data = tnp.array([[1, 2, 3], [4, 5, 6]])
+    for i in range(b.shape[0]):
+        for j in range(b.shape[1]):
+            assert b[i, j] == expected_data[i][j]
 
 
 def test_transpose():
