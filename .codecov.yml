@@ -1,0 +1,4 @@
+# Ignore files
+ignore:
+  - "tinynumpy/tests/*"  
+  - "tinynumpy/benchmark.py"
