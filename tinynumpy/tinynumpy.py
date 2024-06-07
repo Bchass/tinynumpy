@@ -110,7 +110,7 @@ def _get_step(view):
     else:
         return 0  # not contiguous
 
-
+# TODO: Need to revist
 def _strides_for_shape(shape, itemsize, order='C'):
     if order == 'F':
         strides = []
@@ -561,16 +561,6 @@ class ndarray(object):
     def __init__(self, shape, dtype='float64', buffer=None, offset=0,
                  strides=None, order=None):
 
-        # Check order
-        if order == 'C':
-            dtype = _convert_dtype(dtype) #if (dtype is not None) else 'float64'
-            self._itemsize = int(dtype[-1])
-            strides = _strides_for_shape(shape, self._itemsize, order='C')
-        elif order == 'F':
-            dtype = _convert_dtype(dtype) #if (dtype is not None) else 'float64'
-            self._itemsize = int(dtype[-1])
-            strides = _strides_for_shape(shape, self._itemsize, order='F')
-
         # Check and set shape
         try : 
             assert isinstance(shape, Iterable)
@@ -598,7 +588,17 @@ class ndarray(object):
             self._flags_bool = True
             # Check to keep track of asfortranarray() and @property flag
             self._asfortranarray = False
-        
+            # Check order
+            if order == 'C':
+                self._itemsize = int(_convert_dtype(dtype, 'short')[-1])
+                strides = _strides_for_shape(shape, self._itemsize, order='C')
+            elif order == 'F':
+                self._itemsize = int(_convert_dtype(dtype, 'short')[-1])
+                strides = _strides_for_shape(shape, self._itemsize, order='F')
+                if self.ndim > 1:
+                    self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': False}
+                else:
+                   self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
         else:
             # Existing array
             if isinstance(buffer, ndarray) and buffer.base is not None:
@@ -622,7 +622,7 @@ class ndarray(object):
             assert all([isinstance(x, int) for x in strides])
             assert len(strides) == len(shape)
             self._strides = strides
-        
+
         # Define our buffer class
         buffersize = self._strides[0] * self._shape[0] // self._itemsize
         buffersize += self._offset
