@@ -469,7 +469,7 @@ def test_reshape():
     # Test reshape
     reshaped_a = a.reshape((4, 2))
     reshaped_b = b.reshape((4, 2))
-    assert np.array_equal(reshaped_a, reshaped_b)
+    assert(reshaped_a == reshaped_b).all()
     
     # Fail
     with raises(ValueError):  # Invalid shape
