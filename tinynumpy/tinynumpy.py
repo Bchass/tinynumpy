@@ -598,7 +598,7 @@ class ndarray(object):
                     self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': False}
                 else:
                    self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
-                if self.ndim < 1:
+                if self.ndim <= 1:
                      self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
             elif order is not None:
                 raise ValueError("Invalid order specified. Please specify 'C' for C-order or 'F' for Fortran-order.")
