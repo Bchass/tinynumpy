@@ -81,6 +81,7 @@ def test_strides_for_shape():
         assert actual_strides == numpy_strides, f"For shape {shape}, order {order}: Expected {actual_strides}, got {numpy_strides}"
 
 def test_order_flags():
+    a = tnp.array([1,2,3], order='F')
     b = tnp.array([[1, 2, 3], [4, 5, 6]], order='F')
 
     if b.ndim > 1:
@@ -91,6 +92,10 @@ def test_order_flags():
         assert b.flags['C_CONTIGUOUS'] == True
     with pytest.raises(ValueError):
         b = tnp.array([[1, 2, 3], [4, 5, 6]], order='')
+    
+    if a.ndim < 1:
+        assert b.flags['C_CONTIGUOUS'] == True
+        assert b.flags['F_CONTIGUOUS'] == True
         
 
 def test_repr():

@@ -588,17 +588,18 @@ class ndarray(object):
             self._flags_bool = True
             # Check to keep track of asfortranarray() and @property flag
             self._asfortranarray = False
+            self._itemsize = int(_convert_dtype(dtype, 'short')[-1])
             # Check order
             if order == 'C':
-                self._itemsize = int(_convert_dtype(dtype, 'short')[-1])
                 strides = _strides_for_shape(shape, self._itemsize, order='C')
             elif order == 'F':
-                self._itemsize = int(_convert_dtype(dtype, 'short')[-1])
                 strides = _strides_for_shape(shape, self._itemsize, order='F')
                 if self.ndim > 1:
                     self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': False}
                 else:
                    self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
+                if self.ndim < 1:
+                     self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
             elif order is not None:
                 raise ValueError("Invalid order specified. Please specify 'C' for C-order or 'F' for Fortran-order.")
         else:
