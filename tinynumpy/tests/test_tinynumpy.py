@@ -81,22 +81,47 @@ def test_strides_for_shape():
         assert actual_strides == numpy_strides, f"For shape {shape}, order {order}: Expected {actual_strides}, got {numpy_strides}"
 
 def test_order_flags():
-    a = tnp.array([1,2,3], order='F')
+    a = tnp.array([1, 2, 3], order='F')
     b = tnp.array([[1, 2, 3], [4, 5, 6]], order='F')
 
+    # Test 2D
     if b.ndim > 1:
         assert b.flags['F_CONTIGUOUS'] == True
         assert b.flags['C_CONTIGUOUS'] == False
     else:
         assert b.flags['F_CONTIGUOUS'] == True
         assert b.flags['C_CONTIGUOUS'] == True
+
     with pytest.raises(ValueError):
         b = tnp.array([[1, 2, 3], [4, 5, 6]], order='')
-    
-    if a.ndim < 1:
-        assert b.flags['C_CONTIGUOUS'] == True
-        assert b.flags['F_CONTIGUOUS'] == True
-        
+
+    # Test 1D
+    if a.ndim <= 1:
+        assert a.flags['C_CONTIGUOUS'] == True
+        assert a.flags['F_CONTIGUOUS'] == True
+
+    # Test C
+    c = tnp.array([1, 2, 3], order='C')
+    if c.ndim > 1:
+        assert c.flags['C_CONTIGUOUS'] == True
+        assert c.flags['F_CONTIGUOUS'] == False
+    else:
+        assert c.flags['C_CONTIGUOUS'] == True
+        assert c.flags['F_CONTIGUOUS'] == True
+
+    # Test unspecified order. Default to C.
+    d = tnp.array([[1, 2, 3], [4, 5, 6]])
+    assert d.flags['C_CONTIGUOUS'] == True
+    assert d.flags['F_CONTIGUOUS'] == False
+
+    # Test invalid order
+    with pytest.raises(ValueError):
+        e = tnp.array([[1, 2, 3], [4, 5, 6]], order='A')
+
+    # Test an empty array
+    f = tnp.array([], order='F')
+    assert f.flags['C_CONTIGUOUS'] == True
+    assert f.flags['F_CONTIGUOUS'] == True
 
 def test_repr():
     
