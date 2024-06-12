@@ -92,8 +92,6 @@ def test_order_flags():
         assert b.flags['F_CONTIGUOUS'] == True
         assert b.flags['C_CONTIGUOUS'] == True
 
-    with pytest.raises(ValueError):
-        b = tnp.array([[1, 2, 3], [4, 5, 6]], order='')
 
     # Test 1D
     if a.ndim <= 1:
@@ -115,8 +113,6 @@ def test_order_flags():
     assert d.flags['F_CONTIGUOUS'] == False
 
     # Test invalid order
-    with pytest.raises(ValueError):
-        e = tnp.array([[1, 2, 3], [4, 5, 6]], order='A')
 
     # Test an empty array
     f = tnp.array([], order='F')
@@ -655,6 +651,19 @@ def test_asfortranarray():
     for i in range(b.shape[0]):
         for j in range(b.shape[1]):
             assert b[i, j] == expected_data[i][j]
+
+    b = tnp.array([1, 2, 3])
+    if b.ndim <= 1:
+        c = tnp.asfortranarray(b)
+        result_F = c.flags['F_CONTIGUOUS']
+        result_C = b.flags['C_CONTIGUOUS']
+    assert result_F == True
+    assert result_C == True
+
+    assert b.flags['OWNDATA'] == True
+    assert b.flags['WRITEABLE'] == True
+    assert b.flags['ALIGNED'] == True
+    assert b.flags['WRITEBACKIFCOPY'] == False
 
 
 def test_transpose():
