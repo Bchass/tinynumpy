@@ -110,22 +110,20 @@ def _get_step(view):
     else:
         return 0  # not contiguous
 
-# TODO: Need to revist
 def _strides_for_shape(shape, itemsize, order='C'):
+    strides = []
+    stride_product = 1
+
     if order == 'F':
-        strides = []
-        stride_product = 1
-        for s in shape:
-            strides.append(stride_product)
-            stride_product *= s
-        return tuple([i * itemsize for i in strides])
-    elif order == 'C':
-        strides = []
-        stride_product = 1
-        for s in reversed(shape):
-            strides.append(stride_product)
-            stride_product *= s
-        return tuple([i * itemsize for i in reversed(strides)])
+        shape_iter = shape
+    else: 
+        shape_iter = reversed(shape)
+    for s in shape_iter:
+        strides.append(stride_product)
+        stride_product *= s
+    if order == 'C':
+        strides.reverse()
+    return tuple(i * itemsize for i in strides)
 
 
 def _size_for_shape(shape):
@@ -154,13 +152,15 @@ def _shape_from_object(obj):
     return tuple(shape)
 
 
-def _assign_from_object(array, obj):
-    def _assign_from_object_r(element, indicies):
+def _assign_from_object(array, obj, order):
+    def _assign_from_object_r(element, indices):
         if isinstance(element, list):
             for i, e in enumerate(element):
-                _assign_from_object_r(e, indicies + [i])
+                _assign_from_object_r(e, indices + [i])
         else:
-            array[tuple(indicies)] = element
+            if order == 'F':
+                indices = indices[:-1]
+            array[tuple(indices)] = element
     _assign_from_object_r(obj, [])
 
 
@@ -240,9 +240,11 @@ def array(obj, dtype=None, copy=True, order=None):
                 el = el[0]
             if isinstance(el, int):
                 dtype = 'int64'
+        if order is None:
+            order = 'C'
         # Create array
         a = ndarray(shape, dtype, order=order)
-        _assign_from_object(a, obj)
+        _assign_from_object(a, obj, order)
         return a
 
 
@@ -457,6 +459,8 @@ def asfortranarray(self):
 
     if self.ndim >= 1:
         out.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': False}
+    if self.ndim <= 1:
+        out.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
 
     return out
 
@@ -559,7 +563,7 @@ class ndarray(object):
                  '_offset', '_base', '_data', '_flags_bool', '_asfortranarray']
     
     def __init__(self, shape, dtype='float64', buffer=None, offset=0,
-                 strides=None, order=None):
+                 strides=None, order='C'):
 
         # Check and set shape
         try : 
@@ -583,7 +587,6 @@ class ndarray(object):
             # Check and set offset and strides
             assert offset == 0
             self._offset = 0
-            self._strides = _strides_for_shape(self._shape, self.itemsize)
             # Set flag to true by default
             self._flags_bool = True
             # Check to keep track of asfortranarray() and @property flag
@@ -600,8 +603,7 @@ class ndarray(object):
                    self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
                 if self.ndim <= 1:
                      self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
-            elif order is not None:
-                raise ValueError("Invalid order specified. Please specify 'C' for C-order or 'F' for Fortran-order.")
+            self._strides = strides
         else:
             # Existing array
             if isinstance(buffer, ndarray) and buffer.base is not None:
