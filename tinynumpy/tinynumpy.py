@@ -252,6 +252,7 @@ def zeros_like(a, dtype=None, order=None):
     """ Return an array of zeros with the same shape and type as a given array.
     """
     dtype = a.dtype if dtype is None else dtype
+    order = 'C' if order is None else order
     return zeros(a.shape, dtype, order)
 
 
@@ -259,6 +260,7 @@ def ones_like(a, dtype=None, order=None):
     """ Return an array of ones with the same shape and type as a given array.
     """
     dtype = a.dtype if dtype is None else dtype
+    order = 'C' if order is None else order
     return ones(a.shape, dtype, order)
 
 
@@ -266,18 +268,21 @@ def empty_like(a, dtype=None, order=None):
     """ Return a new array with the same shape and type as a given array.
     """
     dtype = a.dtype if dtype is None else dtype
+    order = 'C' if order is None else order
     return empty(a.shape, dtype, order)
 
 
 def zeros(shape, dtype=None, order=None):
     """Return a new array of given shape and type, filled with zeros
     """
+    order = 'C' if order is None else order
     return empty(shape, dtype, order)
 
 
 def ones(shape, dtype=None, order=None):
     """Return a new array of given shape and type, filled with ones
     """
+    order = 'C' if order is None else order
     a = empty(shape, dtype, order)
     a.fill(1)
     return a
@@ -296,6 +301,7 @@ def eye(size):
 def empty(shape, dtype=None, order=None):
     """Return a new array of given shape and type, without initializing entries
     """
+    order = 'C' if order is None else order
     return ndarray(shape, dtype, order=order)
 
 
