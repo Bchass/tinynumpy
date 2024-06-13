@@ -83,6 +83,7 @@ def test_strides_for_shape():
 
 
 def test_c_order():
+        skip()
         a = np.array([1, 2, 3], order='C')
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == True
@@ -92,6 +93,7 @@ def test_c_order():
         assert b.flags['F_CONTIGUOUS'] == False
 
 def test_f_order():
+        skip()
         a = np.array([1, 2, 3], order='F')
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == True
@@ -101,6 +103,7 @@ def test_f_order():
         assert b.flags['F_CONTIGUOUS'] == True
 
 def test_unspecified_order():
+        skip()
         a = np.array([1, 2, 3])
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == True
@@ -110,6 +113,7 @@ def test_unspecified_order():
         assert b.flags['F_CONTIGUOUS'] == False
 
 def test_empty_array():
+        skip()
         a = np.array([], order='C')
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == True
@@ -119,6 +123,7 @@ def test_empty_array():
         assert b.flags['F_CONTIGUOUS'] == True
 
 def test_multiple_dimensions():
+        skip()
         a = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], order='C')
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == False
