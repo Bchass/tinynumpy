@@ -590,21 +590,17 @@ class ndarray(object):
             self._offset = 0
             # Set flag to true by default
             self._flags_bool = True
-            # Check to keep track of asfortranarray() and @property flag
-            self._asfortranarray = False
             self._itemsize = int(_convert_dtype(dtype, 'short')[-1])
             # Check order
             if order == 'C':
                 strides = _strides_for_shape(shape, self._itemsize, order='C')
             elif order == 'F':
                 strides = _strides_for_shape(shape, self._itemsize, order='F')
-                if self.ndim > 1:
-                    self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': False}
-                else:
-                   self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
-                if self.ndim <= 1:
-                     self.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
             self._strides = strides
+            self.flags = {
+                'C_CONTIGUOUS': (order == 'C'),
+                'F_CONTIGUOUS': (order == 'F') or (self.ndim <= 1)
+            }
         else:
             # Existing array
             if isinstance(buffer, ndarray) and buffer.base is not None:
