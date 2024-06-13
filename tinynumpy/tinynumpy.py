@@ -36,7 +36,6 @@ certain features may not be supported.
 # todo: mathematical operators
 # todo: more methods?
 # todo: logspace, meshgrid
-# todo: Fortran order?
 
 from __future__ import division
 from __future__ import absolute_import
@@ -457,16 +456,12 @@ def asfortranarray(self):
     """
 
     # calculate new strides
-    strides_fortran = _strides_for_shape(self._shape, self.itemsize)
+    strides = _strides_for_shape(self.shape, self._itemsize)
 
     # create new object with the same data from buffer
     out =  ndarray(self._shape, dtype=self._dtype, buffer=self._data,
-                            offset=self._offset, strides=strides_fortran)
-
-    if self.ndim >= 1:
-        out.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': False}
-    if self.ndim <= 1:
-        out.flags = {'F_CONTIGUOUS': True, 'C_CONTIGUOUS': True}
+                            offset=self._offset, strides=strides)
+    out._asfortranarray = True
 
     return out
 
@@ -1207,11 +1202,12 @@ class ndarray(object):
     @property
     def flags(self):
         c_cont = _get_step(self) == 1
+        f_cont = _get_step(self) == 0
         return {'C_CONTIGUOUS': (c_cont and not self._asfortranarray),
-                'F_CONTIGUOUS': (c_cont and self.ndim < 2 or self._asfortranarray),
-                'OWNDATA': (self._base is None),
+                'F_CONTIGUOUS': (f_cont and self.ndim < 2 or self._asfortranarray),
+                'OWNDATA': self._base is None,
                 'WRITEABLE': self._flags_bool,
-                'ALIGNED': c_cont,  
+                'ALIGNED': True,
                 'WRITEBACKIFCOPY': False}
 
     @flags.setter
