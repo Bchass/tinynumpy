@@ -161,6 +161,7 @@ def _assign_from_object(array, obj, order):
                 indices = indices[:-1]
             array[tuple(indices)] = element
     _assign_from_object_r(obj, [])
+    return array
 
 
 def _increment_mutable_key(key, shape):
