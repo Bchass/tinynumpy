@@ -110,19 +110,16 @@ def _get_step(view):
         return 0  # not contiguous
 
 def _strides_for_shape(shape, itemsize, order='C'):
-    strides = []
-    stride_product = 1
 
-    if order == 'F':
-        shape_iter = shape
-    else: 
-        shape_iter = reversed(shape)
-    for s in shape_iter:
-        strides.append(stride_product)
-        stride_product *= s
     if order == 'C':
-        strides.reverse()
-    return tuple(i * itemsize for i in strides)
+        strides = [itemsize]
+        for dim in reversed(shape[1:]):
+            strides.insert(0, strides[0] * dim)
+    elif order == 'F':
+        strides = [itemsize]
+        for dim in shape[:-1]:
+            strides.append(strides[-1] * dim)
+    return tuple(strides)
 
 
 def _size_for_shape(shape):
