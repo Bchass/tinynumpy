@@ -572,6 +572,7 @@ class ndarray(object):
             raise AssertionError('The shape must be tuple or list')
         assert all([isinstance(x, int) for x in shape])
         self._shape = shape
+        
         # Check and set dtype
         dtype = _convert_dtype(dtype) if (dtype is not None) else 'float64'
         if dtype not in _known_dtypes:
@@ -588,12 +589,8 @@ class ndarray(object):
             self._offset = 0
             # Set flag to true by default
             self._flags_bool = True
-            self._itemsize = int(_convert_dtype(dtype, 'short')[-1])
-            # Check order
-            if order == 'C':
-                strides = _strides_for_shape(shape, self._itemsize, order='C')
-            elif order == 'F':
-                strides = _strides_for_shape(shape, self._itemsize, order='F')
+            if strides is None:
+                strides = _strides_for_shape(shape, self._itemsize, order=order)
             self._strides = strides
             self.flags = {
                 'C_CONTIGUOUS': (order == 'C'),
@@ -1268,7 +1265,7 @@ class ndarray(object):
             return self.view()
         shape = self.shape[::-1]
         out = empty(shape, self.dtype)
-        #
+
         if ndim == 2:
             for i in range(self.shape[0]):
                 out[:, i] = self[i, :]
