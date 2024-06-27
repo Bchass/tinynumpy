@@ -127,6 +127,30 @@ def test_multiple_dimensions():
         assert b.flags['F_CONTIGUOUS'] == True
 
 
+def test_ndarray_int_conversion():
+    # Test case 1: Array with size 1
+    a = tnp.array([42])
+    assert int(a) == 42
+
+    # Test case 2: Array with size > 1
+    b = tnp.array([1, 2, 3])
+    try:
+        int(b)
+    except TypeError as e:
+        assert str(e) == 'Only length-1 arrays can be converted to scalar'
+    else:
+        assert False, "Expected TypeError not raised"
+
+    # edge scenarios
+    c = tnp.array([], dtype='int32')
+    try:
+        int(c)
+    except TypeError as e:
+        assert str(e) == 'Only length-1 arrays can be converted to scalar'
+    else:
+        assert False, "Expected TypeError not raised"
+
+
 def test_repr():
     for dtype in ['float32', 'float64', 'int32', 'int64']:
         for data in [
