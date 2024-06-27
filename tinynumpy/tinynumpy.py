@@ -110,16 +110,17 @@ def _get_step(view):
         return 0  # not contiguous
 
 def _strides_for_shape(shape, itemsize, order='C'):
-
+    strides = [0] * len(shape)
     if order == 'C':
-        strides = [itemsize]
-        for dim in reversed(shape[1:]):
-            strides.insert(0, strides[0] * dim)
+        strides[-1] = itemsize
+        for i in range(len(shape) - 2, -1, -1):
+            strides[i] = strides[i + 1] * shape[i + 1]
     elif order == 'F':
-        strides = [itemsize]
-        for dim in shape[:-1]:
-            strides.append(strides[-1] * dim)
+        strides[0] = itemsize
+        for i in range(1, len(shape)):
+            strides[i] = strides[i - 1] * shape[i - 1]
     return tuple(strides)
+
 
 
 def _size_for_shape(shape):
@@ -594,7 +595,7 @@ class ndarray(object):
             self._strides = strides
             self.flags = {
                 'C_CONTIGUOUS': (order == 'C'),
-                'F_CONTIGUOUS': (order == 'F') or (self.ndim <= 1)
+                'F_CONTIGUOUS': (order == 'F') or (len(shape) <= 1)
             }
         else:
             # Existing array
@@ -745,38 +746,50 @@ class ndarray(object):
         else:
             raise TypeError('Only length-1 arrays can be converted to scalar')
     
+    def _repr_r(self, s, axis, offset):
+        axisindent = min(2, max(0, (self.ndim - axis - 1)))
+        if axis < len(self._shape):
+            s += '['
+            for k_index in range(self._shape[axis]):
+                if k_index > 0:
+                    s += ('\n       ' + ' ' * axis) * axisindent
+                if axis == self.ndim - 1:  # Last axis
+                    offset_ = offset + k_index * self._strides[axis] // self._itemsize
+                    if offset_ >= len(self._data):
+                        raise IndexError("invalid index")
+                    elem_repr = repr(self._data[offset_])
+                    if self._dtype.startswith('float'):
+                        if elem_repr.endswith('.0'):
+                            elem_repr = elem_repr[:-2]  # Remove trailing '.0'
+                    s += elem_repr
+                else:
+                    offset_ = offset + k_index * self._strides[axis] // self._itemsize
+                    s = self._repr_r(s, axis + 1, offset_)
+                if k_index < self._shape[axis] - 1:
+                    s += ', '
+            s += ']'
+        else:
+            if offset >= len(self._data):
+                raise IndexError("invalid index")
+            elem_repr = repr(self._data[offset])
+            if self._dtype.startswith('float'):
+                if elem_repr.endswith('.0'):
+                    elem_repr = elem_repr[:-2]  # Remove trailing '.0'
+            s += elem_repr
+        return s
+
     def __repr__(self):
         # If more than 100 elements, show short repr
         if self.size > 100:
-            shapestr = 'x'.join([str(i) for i in self.shape])
-            return '<ndarray %s %s at 0x%x>' % (shapestr, self.dtype, id(self))
+            shapestr = 'x'.join(str(i) for i in self._shape)
+            return f'<ndarray {shapestr} {self._dtype} at 0x{id(self):x}>'
+        
         # Otherwise, try to show in nice way
-        def _repr_r(s, axis, offset):
-            axisindent = min(2, max(0, (self.ndim - axis - 1)))
-            if axis < len(self.shape):
-                s += '['
-                for k_index, k in enumerate(range(self.shape[axis])):
-                    if k_index > 0:
-                        s += ('\n       ' + ' ' * axis)  * axisindent
-                    offset_ = offset + k * self._strides[axis] // self.itemsize
-                    s = _repr_r(s, axis+1, offset_)
-                    if k_index < self.shape[axis] - 1:
-                        s += ', '
-                s += ']'
-            else:
-                r = repr(self.data[offset])
-                if '.' in r:
-                    r = ' ' + r
-                    if r.endswith('.0'):
-                        r = r[:-1]
-                s += r
-            return s
-
-        s = _repr_r('', 0, self._offset)
-        if self.dtype != 'float64' and self.dtype != 'int32':
-            return "array(" + s + ", dtype='%s')" % self.dtype
+        s = self._repr_r('', 0, self._offset)
+        if self._dtype not in {'float64', 'int32'}:
+            return f"array({s}, dtype='{self._dtype}')"
         else:
-            return "array(" + s + ")"
+            return f"array({s})"
     
     def __eq__(self, other):
         if other.__module__.split('.')[0] == 'numpy':
