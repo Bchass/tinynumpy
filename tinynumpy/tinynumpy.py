@@ -764,8 +764,6 @@ class ndarray(object):
                     s += ('\n       ' + ' ' * axis) * axisindent
                 if axis == self.ndim - 1:  # Last axis
                     offset_ = offset + k_index * self._strides[axis] // self._itemsize
-                    if offset_ >= len(self._data):
-                        raise IndexError("invalid index")
                     elem_repr = repr(self._data[offset_])
                     if self._dtype.startswith('float'):
                         if elem_repr.endswith('.0'):
@@ -777,14 +775,6 @@ class ndarray(object):
                 if k_index < self._shape[axis] - 1:
                     s += ', '
             s += ']'
-        else:
-            if offset >= len(self._data):
-                raise IndexError("invalid index")
-            elem_repr = repr(self._data[offset])
-            if self._dtype.startswith('float'):
-                if elem_repr.endswith('.0'):
-                    elem_repr = elem_repr[:-2]  # Remove trailing '.0'
-            s += elem_repr
         return s
 
     def __repr__(self):
