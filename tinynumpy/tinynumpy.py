@@ -153,11 +153,13 @@ def _assign_from_object(array, obj, order):
     def _assign_from_object_r(element, indices):
         if isinstance(element, list):
             for i, e in enumerate(element):
-                _assign_from_object_r(e, indices + [i])
+                new_indices = indices + [i]
+                _assign_from_object_r(e, new_indices)
         else:
             if order == 'F':
-                indices = indices[:-1]
+                indices = indices[::1]
             array[tuple(indices)] = element
+
     _assign_from_object_r(obj, [])
     return array
 
@@ -621,10 +623,17 @@ class ndarray(object):
             assert len(strides) == len(shape)
             self._strides = strides
 
-        # Define our buffer class
-        buffersize = self._strides[0] * self._shape[0] // self._itemsize
-        buffersize += self._offset
-        BufferClass = _convert_dtype(dtype, 'ctypes') * buffersize
+        # If order is F we need to loop
+        if order == 'F':
+            total_elements = 1
+            for dim in shape:
+                total_elements += dim
+            buffersize = total_elements
+            BufferClass = _convert_dtype(dtype, 'ctypes') * buffersize
+        else:
+            buffersize = self._strides[0] * self._shape[0] // self._itemsize
+            buffersize += self._offset
+            BufferClass = _convert_dtype(dtype, 'ctypes') * buffersize
         # Create buffer
         if buffer is None:
             self._data = BufferClass()
