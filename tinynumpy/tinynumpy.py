@@ -93,14 +93,19 @@ def _ceildiv(a, b):
     return -(-a // b)
 
 
-def _get_step(view):
+def _get_step(view, order='C'):
     """ Return step to walk over array. If 1, the array is fully
     C-contiguous. If 0, the striding is such that one cannot
     step through the array.
     """
     cont_strides = _strides_for_shape(view.shape, view.itemsize)
     
-    step = view.strides[-1] // cont_strides[-1]
+    if order == 'C':
+        step = view.strides[-1] // cont_strides[-1]
+    elif order == 'F':
+        step = view.strides[0] // cont_strides[0]
+    else:
+        raise ValueError("Order must be 'C' or 'F'")
     corrected_strides = tuple([i * step for i in cont_strides])
     
     almost_cont = view.strides == corrected_strides
@@ -592,18 +597,21 @@ class ndarray(object):
             self._offset = 0
             # Set flag to true by default
             self._flags_bool = True
-            if strides is None:
-                strides = _strides_for_shape(shape, self._itemsize, order=order)
+            # Check order
+            if order == 'C':
+                strides = _strides_for_shape(shape, self._itemsize, order='C')
+            elif order == 'F':
+                strides = _strides_for_shape(shape, self._itemsize, order='F')
             self._strides = strides
             self.flags = {
-                'C_CONTIGUOUS': (order == 'C'),
-                'F_CONTIGUOUS': (order == 'F') or (len(shape) <= 1)
+                'C_CONTIGUOUS': (order == 'C' or self.ndim <= 1),
+                'F_CONTIGUOUS': (order == 'F' or self.ndim <= 1)
             }
         else:
             # Existing array
             if isinstance(buffer, ndarray) and buffer.base is not None:
                 buffer = buffer.base
-            # Keep a reference to avoid memory cleanup
+            # Keep a reference to e memory cleanup
             self._base = buffer
             # WRITEABLE should be True when creating a view
             self._flags_bool = True
@@ -1205,9 +1213,9 @@ class ndarray(object):
     @property
     def flags(self):
         c_cont = _get_step(self) == 1
-        f_cont = _get_step(self) == 0
+        f_cont = _get_step(self) == 1
         return {'C_CONTIGUOUS': (c_cont and not self._asfortranarray),
-                'F_CONTIGUOUS': (f_cont and self.ndim < 2 or self._asfortranarray),
+                'F_CONTIGUOUS': (f_cont and self.ndim <=1 or self._asfortranarray),
                 'OWNDATA': self._base is None,
                 'WRITEABLE': self._flags_bool,
                 'ALIGNED': True,

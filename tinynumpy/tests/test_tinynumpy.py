@@ -77,52 +77,48 @@ def test_strides_for_shape():
         assert actual_strides == numpy_strides, f"For shape {shape}, order {order}: Expected {actual_strides}, got {numpy_strides}"
 
 def test_c_order():
-        skip()
-        a = np.array([1, 2, 3], order='C')
+        a = tnp.array([1, 2, 3], order='C')
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == True
 
-        b = np.array([[1, 2, 3], [4, 5, 6]], order='C')
+        b = tnp.array([[1, 2, 3], [4, 5, 6]], order='C')
         assert b.flags['C_CONTIGUOUS'] == True
         assert b.flags['F_CONTIGUOUS'] == False
 
 def test_f_order():
-        skip()
         a = np.array([1, 2, 3], order='F')
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == True
 
-        b = np.array([[1, 2, 3], [4, 5, 6]], order='F')
+        b = tnp.array([[1, 2, 3], [4, 5, 6]], order='F')
         assert b.flags['C_CONTIGUOUS'] == False
         assert b.flags['F_CONTIGUOUS'] == True
 
 def test_unspecified_order():
-        skip()
-        a = np.array([1, 2, 3])
+        a = tnp.array([1, 2, 3])
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == True
 
-        b = np.array([[1, 2, 3], [4, 5, 6]])
+        b = tnp.array([[1, 2, 3], [4, 5, 6]])
         assert b.flags['C_CONTIGUOUS'] == True
         assert b.flags['F_CONTIGUOUS'] == False
 
 def test_empty_array():
-        skip()
-        a = np.array([], order='C')
+        a = tnp.array([], order='C')
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == True
 
-        b = np.array([], order='F')
+        b = tnp.array([], order='F')
         assert b.flags['C_CONTIGUOUS'] == True
         assert b.flags['F_CONTIGUOUS'] == True
 
 def test_multiple_dimensions():
-        skip()
-        a = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], order='C')
+        a = tnp.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], order='C')
         assert a.flags['C_CONTIGUOUS'] == True
         assert a.flags['F_CONTIGUOUS'] == False
 
-        b = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], order='F')
+        skip()
+        b = tnp.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], order='F')
         assert b.flags['C_CONTIGUOUS'] == False
         assert b.flags['F_CONTIGUOUS'] == True
 
@@ -488,7 +484,6 @@ def test_dtype():
 
 
 def test_reshape():
-    
     a = np.array([1, 2, 3, 4, 5, 6, 7, 8], dtype='int32')
     b = tnp.array([1, 2, 3, 4, 5, 6, 7, 8], dtype='int32')
     
