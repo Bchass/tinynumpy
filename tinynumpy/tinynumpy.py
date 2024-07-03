@@ -104,8 +104,6 @@ def _get_step(view, order='C'):
         step = view.strides[-1] // cont_strides[-1]
     elif order == 'F':
         step = view.strides[0] // cont_strides[0]
-    else:
-        raise ValueError("Order must be 'C' or 'F'")
     corrected_strides = tuple([i * step for i in cont_strides])
     
     almost_cont = view.strides == corrected_strides
