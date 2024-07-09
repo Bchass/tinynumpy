@@ -36,7 +36,6 @@ certain features may not be supported.
 # todo: mathematical operators
 # todo: more methods?
 # todo: logspace, meshgrid
-# todo: Fortran order?
 
 from __future__ import division
 from __future__ import absolute_import
@@ -94,14 +93,17 @@ def _ceildiv(a, b):
     return -(-a // b)
 
 
-def _get_step(view):
+def _get_step(view, order='C'):
     """ Return step to walk over array. If 1, the array is fully
     C-contiguous. If 0, the striding is such that one cannot
     step through the array.
     """
     cont_strides = _strides_for_shape(view.shape, view.itemsize)
     
-    step = view.strides[-1] // cont_strides[-1]
+    if order == 'C':
+        step = view.strides[-1] // cont_strides[-1]
+    elif order == 'F':
+        step = view.strides[0] // cont_strides[0]
     corrected_strides = tuple([i * step for i in cont_strides])
     
     almost_cont = view.strides == corrected_strides
@@ -110,14 +112,18 @@ def _get_step(view):
     else:
         return 0  # not contiguous
 
+def _strides_for_shape(shape, itemsize, order='C'):
+    strides = [0] * len(shape)
+    if order == 'C':
+        strides[-1] = itemsize
+        for i in range(len(shape) - 2, -1, -1):
+            strides[i] = strides[i + 1] * shape[i + 1]
+    elif order == 'F':
+        strides[0] = itemsize
+        for i in range(1, len(shape)):
+            strides[i] = strides[i - 1] * shape[i - 1]
+    return tuple(strides)
 
-def _strides_for_shape(shape, itemsize):
-    strides = []
-    stride_product = 1
-    for s in reversed(shape):
-        strides.append(stride_product)
-        stride_product *= s
-    return tuple([i * itemsize for i in reversed(strides)])
 
 
 def _size_for_shape(shape):
@@ -146,14 +152,19 @@ def _shape_from_object(obj):
     return tuple(shape)
 
 
-def _assign_from_object(array, obj):
-    def _assign_from_object_r(element, indicies):
+def _assign_from_object(array, obj, order):
+    def _assign_from_object_r(element, indices):
         if isinstance(element, list):
             for i, e in enumerate(element):
-                _assign_from_object_r(e, indicies + [i])
+                new_indices = indices + [i]
+                _assign_from_object_r(e, new_indices)
         else:
-            array[tuple(indicies)] = element
+            if order == 'F':
+                indices = indices[::1]
+            array[tuple(indices)] = element
+
     _assign_from_object_r(obj, [])
+    return array
 
 
 def _increment_mutable_key(key, shape):
@@ -232,9 +243,11 @@ def array(obj, dtype=None, copy=True, order=None):
                 el = el[0]
             if isinstance(el, int):
                 dtype = 'int64'
+        if order is None:
+            order = 'C'
         # Create array
-        a = ndarray(shape, dtype, order=None)
-        _assign_from_object(a, obj)
+        a = ndarray(shape, dtype, order=order)
+        _assign_from_object(a, obj, order)
         return a
 
 
@@ -242,6 +255,7 @@ def zeros_like(a, dtype=None, order=None):
     """ Return an array of zeros with the same shape and type as a given array.
     """
     dtype = a.dtype if dtype is None else dtype
+    order = 'C' if order is None else order
     return zeros(a.shape, dtype, order)
 
 
@@ -249,6 +263,7 @@ def ones_like(a, dtype=None, order=None):
     """ Return an array of ones with the same shape and type as a given array.
     """
     dtype = a.dtype if dtype is None else dtype
+    order = 'C' if order is None else order
     return ones(a.shape, dtype, order)
 
 
@@ -256,18 +271,21 @@ def empty_like(a, dtype=None, order=None):
     """ Return a new array with the same shape and type as a given array.
     """
     dtype = a.dtype if dtype is None else dtype
+    order = 'C' if order is None else order
     return empty(a.shape, dtype, order)
 
 
 def zeros(shape, dtype=None, order=None):
     """Return a new array of given shape and type, filled with zeros
     """
+    order = 'C' if order is None else order
     return empty(shape, dtype, order)
 
 
 def ones(shape, dtype=None, order=None):
     """Return a new array of given shape and type, filled with ones
     """
+    order = 'C' if order is None else order
     a = empty(shape, dtype, order)
     a.fill(1)
     return a
@@ -286,6 +304,7 @@ def eye(size):
 def empty(shape, dtype=None, order=None):
     """Return a new array of given shape and type, without initializing entries
     """
+    order = 'C' if order is None else order
     return ndarray(shape, dtype, order=order)
 
 
@@ -431,6 +450,26 @@ def reshape(X,shape):
     return X.reshape(shape)
 
 
+def asfortranarray(self):
+    """
+    Convert the array to F-contiguous order.
+    
+    Returns:
+        ndarray: A new array in F-contiguous order.
+
+    """
+
+    # calculate new strides
+    strides = _strides_for_shape(self.shape, self._itemsize)
+
+    # create new object with the same data from buffer
+    out =  ndarray(self._shape, dtype=self._dtype, buffer=self._data,
+                            offset=self._offset, strides=strides)
+    out._asfortranarray = True
+
+    return out
+
+
 class ndarray(object):
     """ ndarray(shape, dtype='float64', buffer=None, offset=0,
                 strides=None, order=None)
@@ -462,7 +501,7 @@ class ndarray(object):
         Offset of array data in buffer.
     strides : tuple of ints, optional
         Strides of data in memory.
-    order : {'C', 'F'}, optional  NOT SUPPORTED
+    order : {'C', 'F'}, optional
         Row-major or column-major order.
 
     Attributes
@@ -526,14 +565,11 @@ class ndarray(object):
     """
     
     __slots__ = ['_dtype', '_shape', '_strides', '_itemsize', 
-                 '_offset', '_base', '_data', '_flags_bool']
+                 '_offset', '_base', '_data', '_flags_bool', '_asfortranarray']
     
     def __init__(self, shape, dtype='float64', buffer=None, offset=0,
-                 strides=None, order=None):
+                 strides=None, order='C'):
 
-        # Check order
-        if order is not None:
-            raise RuntimeError('ndarray order parameter is not supported')
         # Check and set shape
         try : 
             assert isinstance(shape, Iterable)
@@ -542,6 +578,7 @@ class ndarray(object):
             raise AssertionError('The shape must be tuple or list')
         assert all([isinstance(x, int) for x in shape])
         self._shape = shape
+        
         # Check and set dtype
         dtype = _convert_dtype(dtype) if (dtype is not None) else 'float64'
         if dtype not in _known_dtypes:
@@ -556,19 +593,28 @@ class ndarray(object):
             # Check and set offset and strides
             assert offset == 0
             self._offset = 0
-            assert strides is None
-            self._strides = _strides_for_shape(self._shape, self.itemsize)
             # Set flag to true by default
             self._flags_bool = True
-        
+            # Check order
+            if order == 'C':
+                strides = _strides_for_shape(shape, self._itemsize, order='C')
+            elif order == 'F':
+                strides = _strides_for_shape(shape, self._itemsize, order='F')
+            self._strides = strides
+            self.flags = {
+                'C_CONTIGUOUS': (order == 'C' or self.ndim <= 1),
+                'F_CONTIGUOUS': (order == 'F' or self.ndim <= 1)
+            }
         else:
             # Existing array
             if isinstance(buffer, ndarray) and buffer.base is not None:
                 buffer = buffer.base
-            # Keep a reference to avoid memory cleanup
+            # Keep a reference to e memory cleanup
             self._base = buffer
             # WRITEABLE should be True when creating a view
             self._flags_bool = True
+            # Check to keep track of asfortranarray() and @property flag
+            self._asfortranarray = False
             # for ndarray we use the data property
             if isinstance(buffer, ndarray):
                 buffer = buffer.data
@@ -582,11 +628,18 @@ class ndarray(object):
             assert all([isinstance(x, int) for x in strides])
             assert len(strides) == len(shape)
             self._strides = strides
-        
-        # Define our buffer class
-        buffersize = self._strides[0] * self._shape[0] // self._itemsize
-        buffersize += self._offset
-        BufferClass = _convert_dtype(dtype, 'ctypes') * buffersize
+
+        # If order is F we need to loop
+        if order == 'F':
+            total_elements = 1
+            for dim in shape:
+                total_elements += dim
+            buffersize = total_elements
+            BufferClass = _convert_dtype(dtype, 'ctypes') * buffersize
+        else:
+            buffersize = self._strides[0] * self._shape[0] // self._itemsize
+            buffersize += self._offset
+            BufferClass = _convert_dtype(dtype, 'ctypes') * buffersize
         # Create buffer
         if buffer is None:
             self._data = BufferClass()
@@ -708,38 +761,40 @@ class ndarray(object):
         else:
             raise TypeError('Only length-1 arrays can be converted to scalar')
     
+    def _repr_r(self, s, axis, offset):
+        axisindent = min(2, max(0, (self.ndim - axis - 1)))
+        if axis < len(self._shape):
+            s += '['
+            for k_index in range(self._shape[axis]):
+                if k_index > 0:
+                    s += ('\n       ' + ' ' * axis) * axisindent
+                if axis == self.ndim - 1:  # Last axis
+                    offset_ = offset + k_index * self._strides[axis] // self._itemsize
+                    elem_repr = repr(self._data[offset_])
+                    if self._dtype.startswith('float'):
+                        if elem_repr.endswith('.0'):
+                            elem_repr = elem_repr[:-2]  # Remove trailing '.0'
+                    s += elem_repr
+                else:
+                    offset_ = offset + k_index * self._strides[axis] // self._itemsize
+                    s = self._repr_r(s, axis + 1, offset_)
+                if k_index < self._shape[axis] - 1:
+                    s += ', '
+            s += ']'
+        return s
+
     def __repr__(self):
         # If more than 100 elements, show short repr
         if self.size > 100:
-            shapestr = 'x'.join([str(i) for i in self.shape])
-            return '<ndarray %s %s at 0x%x>' % (shapestr, self.dtype, id(self))
+            shapestr = 'x'.join(str(i) for i in self._shape)
+            return f'<ndarray {shapestr} {self._dtype} at 0x{id(self):x}>'
+        
         # Otherwise, try to show in nice way
-        def _repr_r(s, axis, offset):
-            axisindent = min(2, max(0, (self.ndim - axis - 1)))
-            if axis < len(self.shape):
-                s += '['
-                for k_index, k in enumerate(range(self.shape[axis])):
-                    if k_index > 0:
-                        s += ('\n       ' + ' ' * axis)  * axisindent
-                    offset_ = offset + k * self._strides[axis] // self.itemsize
-                    s = _repr_r(s, axis+1, offset_)
-                    if k_index < self.shape[axis] - 1:
-                        s += ', '
-                s += ']'
-            else:
-                r = repr(self.data[offset])
-                if '.' in r:
-                    r = ' ' + r
-                    if r.endswith('.0'):
-                        r = r[:-1]
-                s += r
-            return s
-
-        s = _repr_r('', 0, self._offset)
-        if self.dtype != 'float64' and self.dtype != 'int32':
-            return "array(" + s + ", dtype='%s')" % self.dtype
+        s = self._repr_r('', 0, self._offset)
+        if self._dtype not in {'float64', 'int32'}:
+            return f"array({s}, dtype='{self._dtype}')"
         else:
-            return "array(" + s + ")"
+            return f"array({s})"
     
     def __eq__(self, other):
         if other.__module__.split('.')[0] == 'numpy':
@@ -1156,11 +1211,12 @@ class ndarray(object):
     @property
     def flags(self):
         c_cont = _get_step(self) == 1
-        return {'C_CONTIGUOUS': c_cont,
-                'F_CONTIGUOUS': (c_cont and self.ndim < 2),
-                'OWNDATA': (self._base is None),
+        f_cont = _get_step(self) == 1
+        return {'C_CONTIGUOUS': (c_cont and not self._asfortranarray),
+                'F_CONTIGUOUS': (f_cont and self.ndim <=1 or self._asfortranarray),
+                'OWNDATA': self._base is None,
                 'WRITEABLE': self._flags_bool,
-                'ALIGNED': c_cont,  
+                'ALIGNED': True,
                 'WRITEBACKIFCOPY': False}
 
     @flags.setter
@@ -1168,6 +1224,10 @@ class ndarray(object):
         if isinstance(value, dict):
             if 'WRITEABLE' in value:
                 self._flags_bool = value['WRITEABLE']
+            if 'F_CONTIGUOUS' in value:
+                self._asfortranarray = value['F_CONTIGUOUS']
+            if 'C_CONTIGUOUS' in value:
+                self._asfortranarray = not value['C_CONTIGUOUS']
             if 'WRITEBACKIFCOPY' in value and value['WRITEBACKIFCOPY'] == True:
                 raise ValueError("can't set WRITEBACKIFCOPY to True")
     
@@ -1216,14 +1276,13 @@ class ndarray(object):
         return out
     
     def transpose(self):
-        # Numpy returns a view, but we cannot do that since we do not
-        # support Fortran ordering
+
         ndim = self.ndim
         if ndim < 2:
             return self.view()
         shape = self.shape[::-1]
         out = empty(shape, self.dtype)
-        #
+
         if ndim == 2:
             for i in range(self.shape[0]):
                 out[:, i] = self[i, :]

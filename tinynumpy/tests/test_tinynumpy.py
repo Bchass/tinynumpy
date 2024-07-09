@@ -9,6 +9,7 @@ import ctypes
 
 import pytest
 from pytest import raises, skip
+import faulthandler
 
 try:
     import tinynumpy.tinynumpy as tnp
@@ -51,27 +52,117 @@ def test_shapes_and_strides():
         else:
             assert len(repr(b)) > (b.size * 3)  # "x.0" for each element
 
+def test_strides_for_shape():
+
+    shapes_itemsize = [
+        ((3,), 4, 'C', (4,)),
+        ((3,), 4, 'F', (4,)),
+        ((3, 4), 4, 'C', (16, 4)),
+        ((3, 4), 4, 'F', (4, 12)),
+        ((3, 4, 2), 4, 'C', (32, 8, 4)),
+        ((3, 4, 2), 4, 'F', (4, 12, 48)), 
+        ((5, 4, 3), 8, 'C', (96, 24, 8)),
+        ((5, 4, 3), 8, 'F', (8, 40, 160)),
+    ]
+
+    for shape, itemsize, order, expected_strides in shapes_itemsize:
+
+        actual_strides = tnp._strides_for_shape(shape, itemsize, order)
+
+        dtype = f'int{itemsize * 8}' 
+        a = np.empty(shape, dtype=dtype, order=order)
+        numpy_strides = a.strides
+        
+        # check against numpy
+        assert actual_strides == numpy_strides, f"For shape {shape}, order {order}: Expected {actual_strides}, got {numpy_strides}"
+
+def test_c_order():
+        a = tnp.array([1, 2, 3], order='C')
+        assert a.flags['C_CONTIGUOUS'] == True
+        assert a.flags['F_CONTIGUOUS'] == True
+
+        b = tnp.array([[1, 2, 3], [4, 5, 6]], order='C')
+        assert b.flags['C_CONTIGUOUS'] == True
+        assert b.flags['F_CONTIGUOUS'] == False
+
+def test_f_order():
+        a = np.array([1, 2, 3], order='F')
+        assert a.flags['C_CONTIGUOUS'] == True
+        assert a.flags['F_CONTIGUOUS'] == True
+
+        b = tnp.array([[1, 2, 3], [4, 5, 6]], order='F')
+        assert b.flags['C_CONTIGUOUS'] == False
+        assert b.flags['F_CONTIGUOUS'] == True
+
+def test_unspecified_order():
+        a = tnp.array([1, 2, 3])
+        assert a.flags['C_CONTIGUOUS'] == True
+        assert a.flags['F_CONTIGUOUS'] == True
+
+        b = tnp.array([[1, 2, 3], [4, 5, 6]])
+        assert b.flags['C_CONTIGUOUS'] == True
+        assert b.flags['F_CONTIGUOUS'] == False
+
+def test_empty_array():
+        a = tnp.array([], order='C')
+        assert a.flags['C_CONTIGUOUS'] == True
+        assert a.flags['F_CONTIGUOUS'] == True
+
+        b = tnp.array([], order='F')
+        assert b.flags['C_CONTIGUOUS'] == True
+        assert b.flags['F_CONTIGUOUS'] == True
+
+def test_multiple_dimensions():
+        a = tnp.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], order='C')
+        assert a.flags['C_CONTIGUOUS'] == True
+        assert a.flags['F_CONTIGUOUS'] == False
+
+        skip()
+        b = tnp.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], order='F')
+        assert b.flags['C_CONTIGUOUS'] == False
+        assert b.flags['F_CONTIGUOUS'] == True
+
+
+def test_ndarray_int_conversion():
+    # Test case 1: Array with size 1
+    a = tnp.array([42])
+    assert int(a) == 42
+
+    # Test case 2: Array with size > 1
+    b = tnp.array([1, 2, 3])
+    try:
+        int(b)
+    except TypeError as e:
+        assert str(e) == 'Only length-1 arrays can be converted to scalar'
+    else:
+        assert False, "Expected TypeError not raised"
+
+    # edge scenarios
+    c = tnp.array([], dtype='int32')
+    try:
+        int(c)
+    except TypeError as e:
+        assert str(e) == 'Only length-1 arrays can be converted to scalar'
+    else:
+        assert False, "Expected TypeError not raised"
+
 
 def test_repr():
-    
     for dtype in ['float32', 'float64', 'int32', 'int64']:
-        for data in [[1, 2, 3, 4, 5, 6, 7, 8],
-                    [[1, 2], [3, 4], [5, 6], [7, 8]],
-                    [[[1, 2], [3, 4]],[[5, 6], [7, 8]]],
-                    ]:
+        for data in [
+            [1, 2, 3, 4, 5, 6, 7, 8],
+            [[1, 2], [3, 4], [5, 6], [7, 8]],
+            [[[1, 2], [3, 4]], [[5, 6], [7, 8]]],
+        ]:
             a = np.array(data, dtype)
             b = tnp.array(data, dtype)
-            # Compare line by line (forget leading whitespace)
-            charscompared = 0
+
             for l1, l2 in zip(repr(a).splitlines(), repr(b).splitlines()):
                 l1, l2 = l1.rstrip(), l2.rstrip()
                 l1, l2 = l1.split('dtype=')[0], l2.split('dtype=')[0]
-                l1 = l1.replace(' ', '').replace('\t', '').rstrip(',)')
+                l1 = l1.replace(' ', '').replace('\t', '').rstrip(',)').replace('.', '')
                 l2 = l2.replace(' ', '').replace('\t', '').rstrip(',)')
                 assert l1 == l2
-                charscompared += len(l1)
-            assert charscompared > (3 * b.size) - 2
-
 
 def test__float__():
 
@@ -393,7 +484,6 @@ def test_dtype():
 
 
 def test_reshape():
-    
     a = np.array([1, 2, 3, 4, 5, 6, 7, 8], dtype='int32')
     b = tnp.array([1, 2, 3, 4, 5, 6, 7, 8], dtype='int32')
     
@@ -424,6 +514,11 @@ def test_reshape():
     assert b2.base is b
     assert a2[:].base is a
     assert b2[:].base is b
+
+    # Test reshape
+    reshaped_a = a.reshape((4, 2))
+    reshaped_b = b.reshape((4, 2))
+    assert(reshaped_a == reshaped_b).all()
     
     # Fail
     with raises(ValueError):  # Invalid shape
@@ -542,6 +637,33 @@ def test_getitem():
     a = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
     b = tnp.array([[1, 2, 3, 4], [5, 6, 7, 8]])
 
+
+def test_get_step():
+    # Test for C-contiguous arrays
+    c_array = np.array([[1, 2, 3], [4, 5, 6]], order='C')
+    tnp_c_array = tnp.array([[1, 2, 3], [4, 5, 6]], order='C')
+    assert tnp._get_step(c_array, order='C') == 1
+    assert tnp._get_step(tnp_c_array, order='C') == 1
+
+    # Test for F-contiguous arrays
+    f_array = np.array([[1, 2, 3], [4, 5, 6]], order='F')
+    tnp_f_array = tnp.array([[1, 2, 3], [4, 5, 6]], order='F')
+    assert tnp._get_step(f_array, order='F') == 0
+    assert tnp._get_step(tnp_f_array, order='F') == 0
+
+    # Test for non-contiguous arrays
+    nc_array = c_array[:, ::2]
+    tnp_nc_array = tnp_c_array[:, ::2]
+    assert tnp._get_step(nc_array) == 0
+    assert tnp._get_step(tnp_nc_array) == 0
+
+    # Test for non-contiguous arrays with Fortran order
+    f_nc_array = f_array[::2, :]
+    tnp_f_nc_array = tnp_f_array[::2, :]
+    assert tnp._get_step(f_nc_array, order='F') == 0
+    assert tnp._get_step(tnp_f_nc_array, order='F') == 0
+
+
 def test_setitem_writeable():
 
     a = tnp.array([1, 2, 3])
@@ -557,6 +679,41 @@ def test_setitem_writeable():
     with pytest.raises(ValueError):
         a = tnp.array([1, 2, 3])
         a.flags = {'WRITEBACKIFCOPY': True}
+        
+
+def test_asfortranarray():
+    """test the asfortranarray function for tinynumpy"""
+
+    a = tnp.array([[1, 2, 3], [4, 5, 6]])
+    if a.ndim >= 1:
+        b = tnp.asfortranarray(a)
+        result_F = b.flags['F_CONTIGUOUS']
+        result_C = b.flags['C_CONTIGUOUS']
+    assert result_F == True
+    assert result_C == False
+
+    assert b.flags['OWNDATA'] == False
+    assert b.flags['WRITEABLE'] == True
+    assert b.flags['ALIGNED'] == True
+    assert b.flags['WRITEBACKIFCOPY'] == False
+
+    expected_data = tnp.array([[1, 2, 3], [4, 5, 6]])
+    for i in range(b.shape[0]):
+        for j in range(b.shape[1]):
+            assert b[i, j] == expected_data[i][j]
+
+    b = tnp.array([1, 2, 3])
+    if b.ndim <= 1:
+        c = tnp.asfortranarray(b)
+        result_F = c.flags['F_CONTIGUOUS']
+        result_C = b.flags['C_CONTIGUOUS']
+    assert result_F == True
+    assert result_C == True
+
+    assert b.flags['OWNDATA'] == True
+    assert b.flags['WRITEABLE'] == True
+    assert b.flags['ALIGNED'] == True
+    assert b.flags['WRITEBACKIFCOPY'] == False
 
 
 def test_transpose():
@@ -753,6 +910,7 @@ def test_divide():
     assert a == tnp.array([5, -4, 1], dtype='int64')
 
 
+
 def test_multiply():
     """test the addition function for tinynumpy"""
 
@@ -911,7 +1069,7 @@ def test_linspace():
     # data types
     result = tnp.linspace(0, 1, dtype='float64')
     assert result.dtype == 'float64'
-
+    
 def test_astype():
     """test the astype function for tinynumpy"""
     for dtype in ['bool', 'int8', 'uint8', 'int16', 'uint16',

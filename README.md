@@ -28,7 +28,6 @@ Caveats
 -------
 
 * ndarray.flat iterator cannot be indexed (it is a generator).
-* No support for Fortran order.
 * Support for data types limited to bool, uin8, uint16, uint32, uint64,
   int8, int16, int32, int64, float32, float64.
 * Functions that calculate statistics on the data are much slower, since

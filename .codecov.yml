@@ -1,6 +1,4 @@
+# Ignore files
 ignore:
-  - "tinynumpy/tests/**/*.py"  # Ignore files in the tests directory
+  - "tinynumpy/tests/*"  
   - "tinynumpy/benchmark.py"
-
-range: 70..90     # First number represents red, and second represents green
-round: down       # up, down, or nearest
