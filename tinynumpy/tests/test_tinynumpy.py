@@ -642,14 +642,14 @@ def test_get_step():
     # Test for C-contiguous arrays
     c_array = np.array([[1, 2, 3], [4, 5, 6]], order='C')
     tnp_c_array = tnp.array([[1, 2, 3], [4, 5, 6]], order='C')
-    assert tnp._get_step(c_array) == 1
-    assert tnp._get_step(tnp_c_array) == 1
+    assert tnp._get_step(c_array, order='C') == 1
+    assert tnp._get_step(tnp_c_array, order='C') == 1
 
     # Test for F-contiguous arrays
     f_array = np.array([[1, 2, 3], [4, 5, 6]], order='F')
     tnp_f_array = tnp.array([[1, 2, 3], [4, 5, 6]], order='F')
-    assert tnp._get_step(f_array) == 0
-    assert tnp._get_step(tnp_f_array) == 0
+    assert tnp._get_step(f_array, order='F') == 0
+    assert tnp._get_step(tnp_f_array, order='F') == 0
 
     # Test for non-contiguous arrays
     nc_array = c_array[:, ::2]
@@ -660,8 +660,8 @@ def test_get_step():
     # Test for non-contiguous arrays with Fortran order
     f_nc_array = f_array[::2, :]
     tnp_f_nc_array = tnp_f_array[::2, :]
-    assert tnp._get_step(f_nc_array) == 0
-    assert tnp._get_step(tnp_f_nc_array) == 0
+    assert tnp._get_step(f_nc_array, order='F') == 0
+    assert tnp._get_step(tnp_f_nc_array, order='F') == 0
 
 
 def test_setitem_writeable():
