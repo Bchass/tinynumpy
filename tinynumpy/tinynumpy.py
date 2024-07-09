@@ -1276,8 +1276,7 @@ class ndarray(object):
         return out
     
     def transpose(self):
-        # Numpy returns a view, but we cannot do that since we do not
-        # support Fortran ordering
+
         ndim = self.ndim
         if ndim < 2:
             return self.view()
