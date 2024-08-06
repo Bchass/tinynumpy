@@ -32,11 +32,6 @@ behavior of tinynumpy may deviate in some ways from numpy, or that
 certain features may not be supported.
 """
 
-# todo: keep track of readonly better
-# todo: mathematical operators
-# todo: more methods?
-# todo: logspace, meshgrid
-
 from __future__ import division
 from __future__ import absolute_import
 
@@ -367,6 +362,20 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
         return a, step
     else:
         return a
+
+def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=None):
+    #TODO: axis
+
+    start, stop = float(start), float(stop)
+    ra = stop - start
+    
+    if endpoint:
+        num -= 1
+
+    a = empty((num + 1,), dtype)
+    a[:] = [base ** (start + i * ra / (num)) for i in range(num + 1)]
+
+    return a
 
 def add(ndarray_vec1, ndarray_vec2):
     c = []
