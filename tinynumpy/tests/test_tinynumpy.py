@@ -1069,6 +1069,13 @@ def test_linspace():
     # data types
     result = tnp.linspace(0, 1, dtype='float64')
     assert result.dtype == 'float64'
+
+
+def test_logspace():
+    """test the logspace function for tinynumpy"""
+    result = tnp.logspace(0, 3, 10)
+    expected_result = tnp.array([1.0, 2.154434690031884, 4.641588833612778, 10.0, 21.544346900318832, 46.4158883361278, 100.0, 215.44346900318845, 464.15888336127773, 1000.0])
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
     
 def test_astype():
     """test the astype function for tinynumpy"""
