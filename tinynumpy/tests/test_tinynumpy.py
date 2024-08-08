@@ -1073,8 +1073,24 @@ def test_linspace():
 
 def test_logspace():
     """test the logspace function for tinynumpy"""
+    # default
     result = tnp.logspace(0, 3, 10)
     expected_result = tnp.array([1.0, 2.154434690031884, 4.641588833612778, 10.0, 21.544346900318832, 46.4158883361278, 100.0, 215.44346900318845, 464.15888336127773, 1000.0])
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+    # num
+    result = tnp.logspace(2.0, 3.0, num=4)
+    expected_result = tnp.array([100.0, 215.44346900318845, 464.15888336127773, 1000.0])
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+    # endpoint
+    result = tnp.logspace(2.0, 3.0, num=4, endpoint=False)
+    expected_result = tnp.array([100.0, 177.82794100389228, 316.22776601683796, 562.341325190349, 1000.0])
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+    # base
+    result = tnp.logspace(2.0, 3.0, num=4, base=2.0)
+    expected_result = tnp.array([4.0, 5.039684199579493, 6.3496042078727974, 8.0])
     assert all(result[i] == expected_result[i] for i in range(len(result)))
     
 def test_astype():
