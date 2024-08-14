@@ -1092,6 +1092,11 @@ def test_logspace():
     result = tnp.logspace(2.0, 3.0, num=4, base=2.0)
     expected_result = tnp.array([4.0, 5.039684199579493, 6.3496042078727974, 8.0])
     assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+    # axis
+    result = tnp.logspace(2.0, 3.0, num=4, base=[2.0, 3.0], axis=-1)
+    expected_result = tnp.array([9.0, 12.980246132766677, 18.720754407467133, 27.0])
+    assert all(result[i] == expected_result[i] for i in range(len(result)))
     
 def test_astype():
     """test the astype function for tinynumpy"""

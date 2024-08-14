@@ -364,7 +364,6 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
         return a
 
 def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=None):
-    #TODO: axis
 
     start, stop = float(start), float(stop)
     ra = stop - start
@@ -373,7 +372,13 @@ def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=Non
         num -= 1
 
     a = empty((num + 1,), dtype)
-    a[:] = [base ** (start + i * ra / (num)) for i in range(num + 1)]
+
+    if isinstance(base, list):
+        for i, b in enumerate(base):
+            a = empty((num + 1,), dtype)
+            a[:] = [b ** (start + i * ra / (num)) for i in range(num + 1)]
+    else:
+        a[:] = [base ** (start + i * ra / (num)) for i in range(num + 1)]
 
     return a
 
