@@ -1144,6 +1144,14 @@ def test_meshgrid():
     assert (yy.shape == yy_shape_expected)
     assert (zz.shape == zz_shape_expected)
 
+    # value error for indexing
+    with pytest.raises(ValueError):
+        xv, yv = tnp.meshgrid(x, y, indexing='xi')
+
+    # value error for len shapes < 1
+    with pytest.raises(ValueError):
+        xv, yv = tnp.meshgrid(x, indexing='xy')
+
 
 
 def test_astype():
