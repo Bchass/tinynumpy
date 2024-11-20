@@ -382,6 +382,46 @@ def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=Non
 
     return a
 
+
+def meshgrid(*xi, copy=True, sparse=False, indexing='xy'):
+    if indexing not in {'xy', 'ij'}:
+        raise ValueError("Indexing must be 'xy' or 'ij'")
+    
+    ndim = len(xi)
+    if ndim < 1:
+        raise ValueError("At least one input array is required")
+
+    # Adjust the order of inputs for 'xy' indexing
+    if indexing == 'xy' and ndim >= 2:
+        xi = (xi[1], xi[0]) + xi[2:]
+
+    # Get the lengths of each input array
+    shapes = [len(arr) for arr in xi]
+
+    # Create the output grids
+    grids = []
+    if not sparse:
+        for i, x in enumerate(xi):
+            if i == 0:
+                # Repeat for columns (x-axis direction)
+                grid = [list(x) for _ in range(shapes[1])]
+            else:
+                # Repeat for rows (y-axis direction)
+                grid = [[x_val] * shapes[0] for x_val in x]
+            grids.append(array(grid))
+    else:
+        for i, x in enumerate(xi):
+            shape = [1] * ndim
+            shape[i] = len(x)
+            grids.append(array(x))
+
+    # Swap back grids if 'xy' indexing
+    if indexing == 'xy' and ndim >= 2:
+        grids[0], grids[1] = grids[1], grids[0]
+
+    return tuple(grids)
+
+
 def add(ndarray_vec1, ndarray_vec2):
     c = []
     for a, b in zip(ndarray_vec1, ndarray_vec2):
@@ -482,6 +522,25 @@ def asfortranarray(self):
     out._asfortranarray = True
 
     return out
+
+
+def sqrt(x):
+    """
+    Returns:
+        ndarry: Array with dtype of float64
+
+    """
+    if isinstance(x, ndarray):
+        # create arr of same shape and dtype
+        out = empty(x.shape, dtype="float64")
+        # apply sqrt
+        out._data[:] = [value**0.5 if value >= 0 else float ('nan') for value in x._toflatlist()]
+        return out
+    elif isinstance(x, (int, float)):
+        return x**0.5
+    else:
+        raise TypeError("Unsupported type for sqrt")
+    
 
 
 class ndarray(object):
