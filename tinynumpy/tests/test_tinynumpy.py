@@ -1097,7 +1097,55 @@ def test_logspace():
     result = tnp.logspace(2.0, 3.0, num=4, base=[2.0, 3.0], axis=-1)
     expected_result = tnp.array([9.0, 12.980246132766677, 18.720754407467133, 27.0])
     assert all(result[i] == expected_result[i] for i in range(len(result)))
-    
+
+def test_meshgrid():
+    """test the meshgrid function for tinynumpy"""
+    # Cartesian indexing
+    nx, ny = (3, 2)
+    x = tnp.linspace(0, 1, nx)
+    y = tnp.linspace(0, 1, ny)
+    xv, yv = tnp.meshgrid(x, y, indexing='xy')
+
+    xv_expected_result = tnp.array([[0.0, 0.0],
+                                [0.5, 0.5],
+                                [1.0, 1.0]])
+
+    yv_expected_result = tnp.array([[0.0, 1.0],
+                                [0.0, 1.0],
+                                [0.0, 1.0]])
+
+    assert (xv == xv_expected_result).all()
+    assert (yv == yv_expected_result).all()
+
+    # Matrix indexing
+    ni, nj = (3, 2)
+    i = tnp.linspace(0, 1, ni)
+    j = tnp.linspace(0, 1, nj)
+    iv, jv = tnp.meshgrid(i, j, indexing='ij', sparse=True)
+
+    iv_expected_result = tnp.array([0.0, 0.5, 1.0])
+
+    jv_expected_result = tnp.array([0.0, 1.0])
+
+    assert (iv == iv_expected_result).all()
+    assert (jv == jv_expected_result).all()
+
+    # coordiante arrays
+    x = tnp.linspace(-5, 5, 101)
+    y = tnp.linspace(-5, 5, 101)
+    xx, yy = tnp.meshgrid(x,y)
+    zz = tnp.sqrt(xx**2 + yy**2)
+
+    xx_shape_expected = (101, 101)
+    yy_shape_expected = (101, 101)
+    zz_shape_expected = (101, 101)
+
+    assert (xx.shape == xx_shape_expected)
+    assert (yy.shape == yy_shape_expected)
+    assert (zz.shape == zz_shape_expected)
+
+
+
 def test_astype():
     """test the astype function for tinynumpy"""
     for dtype in ['bool', 'int8', 'uint8', 'int16', 'uint16',
