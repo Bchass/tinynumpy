@@ -541,8 +541,15 @@ def sqrt(x):
     """
     Returns:
         ndarry: Array with dtype of float64
+        list: List with sqrt applied
 
     """
+    
+    # if a list is passed
+    if isinstance(x, list):
+        return [str(sqrt(i)).rstrip('0') for i in x]
+        
+
     if isinstance(x, ndarray):
         # create arr of same shape and dtype
         out = empty(x.shape, dtype="float64")
