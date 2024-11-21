@@ -1152,7 +1152,22 @@ def test_meshgrid():
     with pytest.raises(ValueError):
         xv, yv = tnp.meshgrid(x, indexing='xy')
 
+def test_sqrt():
+    """test the sqrt function for tinynumpy"""
 
+    # basic sqrt
+    x = tnp.sqrt(2)
+    expected_result = float(1.4142135623730951)
+    assert x == expected_result
+
+    # pass a list
+    x = tnp.sqrt([1,4,9])
+    expected_result = list(['1.', '2.', '3.'])
+    assert x == expected_result
+
+    # complex numbers not supported
+    with pytest.raises(TypeError):
+        tnp.sqrt([4, -1, -3+4J])
 
 def test_astype():
     """test the astype function for tinynumpy"""
