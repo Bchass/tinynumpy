@@ -1153,21 +1153,87 @@ def test_meshgrid():
         xv, yv = tnp.meshgrid(x, indexing='xy')
 
 def test_sqrt():
-    """test the sqrt function for tinynumpy"""
+    """Test the sqrt function for tinynumpy."""
 
-    # basic sqrt
+    # --- Scalar values ---
+    # Positive integer
     x = tnp.sqrt(2)
     expected_result = float(1.4142135623730951)
     assert x == expected_result
 
-    # pass a list
-    x = tnp.sqrt([1,4,9])
-    expected_result = list(['1.', '2.', '3.'])
+    # Positive float
+    x = tnp.sqrt(4.0)
+    expected_result = float(2.0)
     assert x == expected_result
 
-    # complex numbers not supported
+    # Zero
+    x = tnp.sqrt(0)
+    expected_result = float(0.0)
+    assert x == expected_result
+
+    # Negative number (returns nan)
+    x = tnp.sqrt(-1)
+    expected_result = 'nan'
+    assert str(x) == str(expected_result)
+
+    # Large number
+    x = tnp.sqrt(1e16)
+    expected_result = float(100000000.0)
+    assert x == expected_result
+
+    # Small number
+    x = tnp.sqrt(1e-16)
+    expected_result = float(1e-08)
+    assert x == expected_result
+
+    # Multi-dimensional
+    x = tnp.sqrt(tnp.array([[1, 4], [9, 16]]))
+    expected_result = tnp.array([[1, 2],
+                                 [3, 4]])
+    assert x == expected_result
+
+    # Zero
+    x = tnp.sqrt(0)
+    expected_result = float(0.0)
+    assert x == expected_result
+
+    # --- Lists ---
+    # Simple positive list
+    x = tnp.sqrt([1, 4, 9])
+    expected_result = ['1.', '2.', '3.']
+    assert x == expected_result
+
+    # List with negative number
+    x = tnp.sqrt([1, -4, 9])
+    expected_result = ['1.', 'nan', '3.']
+    assert x == expected_result
+
+    # Mixed
+    x = tnp.sqrt([1, 4.0, 9])
+    expected_result = ['1.', '2.', '3.']
+    assert x == expected_result
+
+    # Empty input
+    x = tnp.sqrt([])
+    expected_result = []
+    assert x == expected_result
+
+    # --- Error handling ---
+    # Complex numbers (unsupported)
     with pytest.raises(TypeError):
         tnp.sqrt([4, -1, -3+4J])
+    
+    # non-numeric types
+    with pytest.raises(TypeError):
+        tnp.sqrt("string")
+
+    with pytest.raises(TypeError):
+        tnp.sqrt(None)
+
+    # Make sure no modifcations are done
+    x = tnp.array([1, 4, 9])
+    result = tnp.sqrt(x)
+    assert x._toflatlist() == [1, 4, 9]
 
 def test_astype():
     """test the astype function for tinynumpy"""
