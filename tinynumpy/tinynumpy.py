@@ -541,23 +541,22 @@ def sqrt(x):
     """
     Returns:
         ndarry: Array with dtype of float64
+
         list: List with sqrt applied
 
-    """
-    
-    # if a list is passed
-    if isinstance(x, list):
-        return [str(sqrt(i)).rstrip('0') for i in x]
-        
-
+    """ 
+    # TODO: Fix format for nested lists
     if isinstance(x, ndarray):
         # create arr of same shape and dtype
         out = empty(x.shape, dtype="float64")
         # apply sqrt
-        out._data[:] = [value**0.5 if value >= 0 else float ('nan') for value in x._toflatlist()]
+        out._data[:] = [value**0.5 if value >= 0 else nan for value in x._toflatlist()]
         return out
     elif isinstance(x, (int, float)):
-        return x**0.5
+        return x**0.5 if x >= 0 else nan
+    # list
+    elif isinstance(x, list):
+        return [str(sqrt(i)).rstrip('0') for i in x]
     else:
         raise TypeError("Unsupported type for sqrt")
     
