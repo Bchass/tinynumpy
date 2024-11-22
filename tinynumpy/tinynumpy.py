@@ -545,7 +545,7 @@ def sqrt(x):
         list: List with sqrt applied
 
     """ 
-    # TODO: Fix format for nested lists
+    
     if isinstance(x, ndarray):
         # create arr of same shape and dtype
         out = empty(x.shape, dtype="float64")
@@ -553,10 +553,10 @@ def sqrt(x):
         out._data[:] = [value**0.5 if value >= 0 else nan for value in x._toflatlist()]
         return out
     elif isinstance(x, (int, float)):
-        return x**0.5 if x >= 0 else nan
+        return x**0.5 if x >= 0 else float('nan')
     # list
     elif isinstance(x, list):
-        return [str(sqrt(i)).rstrip('0') for i in x]
+        return [sqrt(i) if isinstance(i, list) else str(i**0.5).rstrip('0') if i >= 0 else 'nan' for i in x]
     else:
         raise TypeError("Unsupported type for sqrt")
     
