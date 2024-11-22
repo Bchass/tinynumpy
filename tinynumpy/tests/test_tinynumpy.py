@@ -1213,6 +1213,11 @@ def test_sqrt():
     expected_result = ['1.', '2.', '3.']
     assert x == expected_result
 
+    # Nested lists
+    x = tnp.sqrt([[1, 4], [9, 16]])
+    expected_result = [['1.', '2.'], ['3.', '4.']]
+    assert x == expected_result
+
     # Empty input
     x = tnp.sqrt([])
     expected_result = []
