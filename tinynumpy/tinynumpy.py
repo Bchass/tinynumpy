@@ -364,6 +364,11 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
         return a
 
 def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=None):
+    """ logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=None)
+
+    Return numbers spaced evenly on a log scale.
+
+    """
 
     start, stop = float(start), float(stop)
     ra = stop - start
@@ -381,6 +386,54 @@ def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=Non
         a[:] = [base ** (start + i * ra / (num)) for i in range(num + 1)]
 
     return a
+
+
+def meshgrid(*xi, copy=True, sparse=False, indexing='xy'):
+    """ meshgrid(*xi, copy=True, sparse=False, indexing='xy')
+
+    Return a tuple of coordinate matrices from coordinate vectors.
+
+    """
+
+    ndim = len(xi)
+
+    if indexing not in {'xy', 'ij'}:
+        raise ValueError("Indexing must be 'xy' or 'ij'")
+    
+    # Adjust the order of inputs for 'xy' indexing
+    if indexing == 'xy' and ndim > 1:
+        xi = (xi[1], xi[0]) + xi[2:]
+
+    # Get the lengths of each input array
+    shapes = [len(x) for x in xi]
+
+    if len(shapes) < 2:
+        raise ValueError("At least two input arrays are required")
+
+    # Create the output grids
+    grids = []
+    if not sparse:
+        for i, x in enumerate(xi):
+            if i == 0:
+                # Repeat for columns (x-axis direction)
+                grid = [list(x) for _ in range(shapes[1])]
+                print(grid)
+            else:
+                # Repeat for rows (y-axis direction)
+                grid = [[x_val] * shapes[0] for x_val in x]
+            grids.append(array(grid))
+    else:
+        for i, x in enumerate(xi):
+            shape = [1] * ndim
+            shape[i] = len(x)
+            grids.append(array(x))
+
+    # Swap back grids if 'xy' indexing
+    if indexing == 'xy' and ndim >= 2:
+        grids[0], grids[1] = grids[1], grids[0]
+
+    return tuple(grids)
+
 
 def add(ndarray_vec1, ndarray_vec2):
     c = []
@@ -482,6 +535,31 @@ def asfortranarray(self):
     out._asfortranarray = True
 
     return out
+
+
+def sqrt(x):
+    """
+    Returns:
+        ndarry: Array with dtype of float64
+
+        list: List with sqrt applied
+
+    """ 
+    
+    if isinstance(x, ndarray):
+        # create arr of same shape and dtype
+        out = empty(x.shape, dtype="float64")
+        # apply sqrt
+        out._data[:] = [value**0.5 if value >= 0 else nan for value in x._toflatlist()]
+        return out
+    elif isinstance(x, (int, float)):
+        return x**0.5 if x >= 0 else float('nan')
+    # list
+    elif isinstance(x, list):
+        return [sqrt(i) if isinstance(i, list) else str(i**0.5).rstrip('0') if i >= 0 else 'nan' for i in x]
+    else:
+        raise TypeError("Unsupported type for sqrt")
+    
 
 
 class ndarray(object):

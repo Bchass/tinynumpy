@@ -1097,7 +1097,149 @@ def test_logspace():
     result = tnp.logspace(2.0, 3.0, num=4, base=[2.0, 3.0], axis=-1)
     expected_result = tnp.array([9.0, 12.980246132766677, 18.720754407467133, 27.0])
     assert all(result[i] == expected_result[i] for i in range(len(result)))
+
+def test_meshgrid():
+    """test the meshgrid function for tinynumpy"""
+    # Cartesian indexing
+    nx, ny = (3, 2)
+    x = tnp.linspace(0, 1, nx)
+    y = tnp.linspace(0, 1, ny)
+    xv, yv = tnp.meshgrid(x, y, indexing='xy')
+
+    xv_expected_result = tnp.array([[0.0, 0.0],
+                                [0.5, 0.5],
+                                [1.0, 1.0]])
+
+    yv_expected_result = tnp.array([[0.0, 1.0],
+                                [0.0, 1.0],
+                                [0.0, 1.0]])
+
+    assert (xv == xv_expected_result).all()
+    assert (yv == yv_expected_result).all()
+
+    # Matrix indexing
+    ni, nj = (3, 2)
+    i = tnp.linspace(0, 1, ni)
+    j = tnp.linspace(0, 1, nj)
+    iv, jv = tnp.meshgrid(i, j, indexing='ij', sparse=True)
+
+    iv_expected_result = tnp.array([0.0, 0.5, 1.0])
+
+    jv_expected_result = tnp.array([0.0, 1.0])
+
+    assert (iv == iv_expected_result).all()
+    assert (jv == jv_expected_result).all()
+
+    # coordiante arrays
+    x = tnp.linspace(-5, 5, 101)
+    y = tnp.linspace(-5, 5, 101)
+    xx, yy = tnp.meshgrid(x,y)
+    zz = tnp.sqrt(xx**2 + yy**2)
+
+    xx_shape_expected = (101, 101)
+    yy_shape_expected = (101, 101)
+    zz_shape_expected = (101, 101)
+
+    assert (xx.shape == xx_shape_expected)
+    assert (yy.shape == yy_shape_expected)
+    assert (zz.shape == zz_shape_expected)
+
+    # value error for indexing
+    with pytest.raises(ValueError):
+        xv, yv = tnp.meshgrid(x, y, indexing='xi')
+
+    # value error for len shapes < 1
+    with pytest.raises(ValueError):
+        xv, yv = tnp.meshgrid(x, indexing='xy')
+
+def test_sqrt():
+    """Test the sqrt function for tinynumpy."""
+
+    # --- Scalar values ---
+    # Positive integer
+    x = tnp.sqrt(2)
+    expected_result = float(1.4142135623730951)
+    assert x == expected_result
+
+    # Positive float
+    x = tnp.sqrt(4.0)
+    expected_result = float(2.0)
+    assert x == expected_result
+
+    # Zero
+    x = tnp.sqrt(0)
+    expected_result = float(0.0)
+    assert x == expected_result
+
+    # Negative number (returns nan)
+    x = tnp.sqrt(-1)
+    expected_result = 'nan'
+    assert str(x) == str(expected_result)
+
+    # Large number
+    x = tnp.sqrt(1e16)
+    expected_result = float(100000000.0)
+    assert x == expected_result
+
+    # Small number
+    x = tnp.sqrt(1e-16)
+    expected_result = float(1e-08)
+    assert x == expected_result
+
+    # Multi-dimensional
+    x = tnp.sqrt(tnp.array([[1, 4], [9, 16]]))
+    expected_result = tnp.array([[1, 2],
+                                 [3, 4]])
+    assert x == expected_result
+
+    # Zero
+    x = tnp.sqrt(0)
+    expected_result = float(0.0)
+    assert x == expected_result
+
+    # --- Lists ---
+    # Simple positive list
+    x = tnp.sqrt([1, 4, 9])
+    expected_result = ['1.', '2.', '3.']
+    assert x == expected_result
+
+    # List with negative number
+    x = tnp.sqrt([1, -4, 9])
+    expected_result = ['1.', 'nan', '3.']
+    assert x == expected_result
+
+    # Mixed
+    x = tnp.sqrt([1, 4.0, 9])
+    expected_result = ['1.', '2.', '3.']
+    assert x == expected_result
+
+    # Nested lists
+    x = tnp.sqrt([[1, 4], [9, 16]])
+    expected_result = [['1.', '2.'], ['3.', '4.']]
+    assert x == expected_result
+
+    # Empty input
+    x = tnp.sqrt([])
+    expected_result = []
+    assert x == expected_result
+
+    # --- Error handling ---
+    # Complex numbers (unsupported)
+    with pytest.raises(TypeError):
+        tnp.sqrt([4, -1, -3+4J])
     
+    # non-numeric types
+    with pytest.raises(TypeError):
+        tnp.sqrt("string")
+
+    with pytest.raises(TypeError):
+        tnp.sqrt(None)
+
+    # Make sure no modifcations are done
+    x = tnp.array([1, 4, 9])
+    result = tnp.sqrt(x)
+    assert x._toflatlist() == [1, 4, 9]
+
 def test_astype():
     """test the astype function for tinynumpy"""
     for dtype in ['bool', 'int8', 'uint8', 'int16', 'uint16',
