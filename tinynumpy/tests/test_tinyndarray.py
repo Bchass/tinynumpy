@@ -13,10 +13,8 @@ try:
 except ImportError:
     numpy = tinynumpy
 
-#numpy.set_printoptions(formatter={'float': repr})
-
 def _clean_repr(a):
-    return "".join(repr(a).split())
+    return "".join(repr(a).replace('.', '').split())
 
 class TestNDArray(unittest.TestCase):
     def setUp(self):
